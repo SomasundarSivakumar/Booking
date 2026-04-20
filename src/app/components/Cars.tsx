@@ -168,7 +168,7 @@ export const Cars = () => {
     const car = CARS[displayIndex];
 
     return (
-        <section ref={sectionRef} className="relative" style={{ height: `${CARS.length * 100}vh` }}>
+        <section id="fleet" ref={sectionRef} className="relative" style={{ height: `${CARS.length * 100}vh` }}>
             {/* Section Heading — above sticky */}
             <div className="text-black uppercase text-center text-8xl font-bold tracking-tight leading-none pt-20 pb-6">
                 Find Your Ride

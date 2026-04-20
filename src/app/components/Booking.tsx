@@ -71,7 +71,7 @@ export const Booking = () => {
     }
 
     return (
-        <section className="w-full relative  h-screen  flex items-center justify-center">
+        <section id="booking" className="w-full relative  h-screen  flex items-center justify-center">
             <div className='absolute top-[10%] animate-spin duration-500 left-[-9%] w-70 h-70'>
                 <img src="./assets/images/Tyer_round.png" className='w-full h-full' />
             </div>

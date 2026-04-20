@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SmoothScroll } from "./components/SmoothScroll";
+import HeaderWrapper from "./components/HeaderWrapper";
 
 export const metadata: Metadata = {
-  title: "ASR Travel",
+  title: "Prakash Travel",
   description: "Your Journey, Your Choice",
 };
 
@@ -13,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased text-[2vw] md:text-[1vw] ">
+    <html lang="en" className="antialiased">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -26,7 +27,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
+      <body className="font-sans bg-background text-foreground selection:bg-dynamic-orange/30">
+        <HeaderWrapper />
         <SmoothScroll>
           {children}
         </SmoothScroll>

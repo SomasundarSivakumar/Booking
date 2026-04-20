@@ -1,6 +1,6 @@
 export const HeroBanner = () => {
     return (
-        <section className="relative h-screen w-full bg-[url('/assets/images/hero_banner.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center">
+        <section id="home" className="relative h-screen w-full bg-[url('/assets/images/hero_banner.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center">
             {/* Dark overlay for better text readability against the cityscape */}
             <div className="absolute inset-0 bg-[#000000] opacity-60 z-0"></div>
 
@@ -11,7 +11,7 @@ export const HeroBanner = () => {
                 </h1>
 
                 <p className="font-sans text-xl md:text-2xl text-light-gray max-w-2xl drop-shadow-md">
-                    Experience seamless travels with ASR Travel. Book your perfect ride from our premium fleet of cars and bikes today.
+                    Experience seamless travels with Prakash Travel. Book your perfect ride from our premium fleet of cars and bikes today.
                 </p>
 
                 {/* <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto text-center justify-center">
