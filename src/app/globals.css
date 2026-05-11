@@ -111,3 +111,65 @@ body {
 .react-datepicker__navigation:hover *::before {
   border-color: white !important;
 }
+
+/* Shimmer / Glimmer effect for booking confirmation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes scale-in {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes slide-up {
+  0% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-scale-in {
+  animation: scale-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease forwards;
+}
+.shimmer-border {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 107, 53, 0.5) 25%,
+    rgba(255, 183, 3, 0.7) 50%,
+    rgba(255, 107, 53, 0.5) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite linear;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+.grid-item-animate {
+  animation: slide-up 0.4s ease forwards;
+  opacity: 0;
+}
+.grid-item-animate:nth-child(1) { animation-delay: 0.05s; }
+.grid-item-animate:nth-child(2) { animation-delay: 0.1s; }
+.grid-item-animate:nth-child(3) { animation-delay: 0.15s; }
+.grid-item-animate:nth-child(4) { animation-delay: 0.2s; }
+.grid-item-animate:nth-child(5) { animation-delay: 0.25s; }
+.grid-item-animate:nth-child(6) { animation-delay: 0.3s; }
+.grid-item-animate:nth-child(7) { animation-delay: 0.35s; }
+.grid-item-animate:nth-child(8) { animation-delay: 0.4s; }

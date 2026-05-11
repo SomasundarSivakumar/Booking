@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import {
   MapPin, Wallet, Tag, CalendarDays, Fuel, Search, SlidersHorizontal,
   ChevronDown, User, Clock3, Heart, X, PlusCircle, ArrowLeft, Car,
@@ -10,26 +10,23 @@ import {
 import { LocationSearch } from "@/app/components/LocationSearch";
 import VehicleDetailModal from "@/app/components/VehicleDetailModal";
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const allCars = [
-  { id: 1, name: "Honda City 2020", brand: "Honda", price: 750000, priceLabel: "₹7,50,000", year: 2020, km: "32,000 km", fuel: "Petrol", tag: "Best Deal", location: "Chennai", seller: "Ravi Kumar", posted: "2 days ago", image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&q=80" },
-  { id: 2, name: "Maruti Swift 2021", brand: "Maruti", price: 520000, priceLabel: "₹5,20,000", year: 2021, km: "18,000 km", fuel: "Petrol", tag: "Low Mileage", location: "Coimbatore", seller: "Priya S", posted: "5 days ago", image: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=700&q=80" },
-  { id: 3, name: "Toyota Innova 2019", brand: "Toyota", price: 1380000, priceLabel: "₹13,80,000", year: 2019, km: "55,000 km", fuel: "Diesel", tag: "Family Pick", location: "Madurai", seller: "Anand M", posted: "1 week ago", image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=700&q=80" },
-  { id: 4, name: "Hyundai i20 2022", brand: "Hyundai", price: 690000, priceLabel: "₹6,90,000", year: 2022, km: "9,000 km", fuel: "Petrol", tag: "Like New", location: "Salem", seller: "Karthik R", posted: "3 days ago", image: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=700&q=80" },
-  { id: 5, name: "Tata Nexon 2021", brand: "Tata", price: 940000, priceLabel: "₹9,40,000", year: 2021, km: "24,000 km", fuel: "Diesel", tag: "Popular", location: "Trichy", seller: "Meena V", posted: "1 day ago", image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=700&q=80" },
-  { id: 6, name: "Ford EcoSport 2019", brand: "Ford", price: 780000, priceLabel: "₹7,80,000", year: 2019, km: "42,000 km", fuel: "Petrol", tag: "Verified", location: "Chennai", seller: "Suresh P", posted: "4 days ago", image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=700&q=80" },
-  { id: 7, name: "Maruti Baleno 2022", brand: "Maruti", price: 620000, priceLabel: "₹6,20,000", year: 2022, km: "11,000 km", fuel: "Petrol", tag: "Like New", location: "Erode", seller: "Divya K", posted: "6 days ago", image: "https://images.unsplash.com/photo-1542362567-b07e54358753?w=700&q=80" },
-  { id: 8, name: "Honda Amaze 2020", brand: "Honda", price: 580000, priceLabel: "₹5,80,000", year: 2020, km: "28,000 km", fuel: "Petrol", tag: "Best Deal", location: "Madurai", seller: "Gokul N", posted: "2 days ago", image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0afe?w=700&q=80" },
-  { id: 9, name: "Hyundai Creta 2022", brand: "Hyundai", price: 1150000, priceLabel: "₹11,50,000", year: 2022, km: "14,000 km", fuel: "Petrol", tag: "Top Pick", location: "Coimbatore", seller: "Lakshmi S", posted: "3 days ago", image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=700&q=80" },
-  { id: 10, name: "Tata Harrier 2020", brand: "Tata", price: 1250000, priceLabel: "₹12,50,000", year: 2020, km: "40,000 km", fuel: "Diesel", tag: "Verified", location: "Salem", seller: "Mohan K", posted: "1 week ago", image: "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=700&q=80" },
-  { id: 11, name: "Maruti Dzire 2021", brand: "Maruti", price: 620000, priceLabel: "₹6,20,000", year: 2021, km: "20,000 km", fuel: "Petrol", tag: "Popular", location: "Trichy", seller: "Nithya P", posted: "5 days ago", image: "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=700&q=80" },
-  { id: 12, name: "Toyota Fortuner 2021", brand: "Toyota", price: 3200000, priceLabel: "₹32,00,000", year: 2021, km: "35,000 km", fuel: "Diesel", tag: "Premium", location: "Chennai", seller: "Arun R", posted: "Today", image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=700&q=80" },
-];
-
-const brands = [...new Set(allCars.map(c => c.brand))];
-const locations = [...new Set(allCars.map(c => c.location))];
-const years = [...new Set(allCars.map(c => c.year))].sort((a, b) => b - a);
-const fuelTypes = [...new Set(allCars.map(c => c.fuel))];
+// ─── Data Types ──────────────────
+type CarData = {
+  id: number;
+  name: string;
+  brand: string;
+  price: number;
+  price_label: string;
+  year: number;
+  km: string;
+  fuel: string;
+  tag: string;
+  location: string;
+  seller: string;
+  contact: string;
+  posted: string;
+  images: string[];
+};
 
 const priceRanges = [
   { label: "All Prices", min: 0, max: Infinity },
@@ -104,6 +101,11 @@ function FilterSidebar({
   selectedFuels, setSelectedFuels,
   selectedPriceRange, setSelectedPriceRange,
   activeFilterCount, clearAll,
+  brands,
+  locations,
+  years,
+  fuelTypes,
+  allCars
 }: {
   selectedBrands: string[]; setSelectedBrands: React.Dispatch<React.SetStateAction<string[]>>;
   selectedLocations: string[]; setSelectedLocations: React.Dispatch<React.SetStateAction<string[]>>;
@@ -111,6 +113,11 @@ function FilterSidebar({
   selectedFuels: string[]; setSelectedFuels: React.Dispatch<React.SetStateAction<string[]>>;
   selectedPriceRange: number; setSelectedPriceRange: React.Dispatch<React.SetStateAction<number>>;
   activeFilterCount: number; clearAll: () => void;
+  brands: string[];
+  locations: string[];
+  years: number[];
+  fuelTypes: string[];
+  allCars: CarData[];
 }) {
   const toggleArr = <V,>(arr: V[], val: V, set: React.Dispatch<React.SetStateAction<V[]>>) =>
     set(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
@@ -173,31 +180,31 @@ function FilterSidebar({
       </div>
 
       <Section icon={<MapPin size={15} strokeWidth={1.75} />} label="Location">
-        {locations.map(loc => (
-          <CheckRow key={loc} label={loc} count={allCars.filter(c => c.location === loc).length}
+        {locations.map((loc, i) => (
+          <CheckRow key={`loc-${i}`} label={loc || 'Unknown'} count={allCars.filter(c => c.location === loc).length}
             checked={selectedLocations.includes(loc)} onChange={() => toggleArr(selectedLocations, loc, setSelectedLocations)} />
         ))}
       </Section>
 
       <Section icon={<Wallet size={15} strokeWidth={1.75} />} label="Budget">
         {priceRanges.map((range, i) => (
-          <RadioRow key={i} label={range.label} checked={selectedPriceRange === i} onChange={() => setSelectedPriceRange(i)} />
+          <RadioRow key={`price-${i}`} label={range.label} checked={selectedPriceRange === i} onChange={() => setSelectedPriceRange(i)} />
         ))}
       </Section>
 
       <Section icon={<Tag size={15} strokeWidth={1.75} />} label="Brand">
-        {brands.map(brand => (
-          <CheckRow key={brand} label={brand} count={allCars.filter(c => c.brand === brand).length}
+        {brands.map((brand, i) => (
+          <CheckRow key={`brand-${i}`} label={brand || 'Unknown'} count={allCars.filter(c => c.brand === brand).length}
             checked={selectedBrands.includes(brand)} onChange={() => toggleArr(selectedBrands, brand, setSelectedBrands)} />
         ))}
       </Section>
 
       <Section icon={<CalendarDays size={15} strokeWidth={1.75} />} label="Year">
         <div className="flex flex-wrap gap-2 pt-1">
-          {years.map(year => {
+          {years.map((year, i) => {
             const active = selectedYears.includes(year);
             return (
-              <button key={year} onClick={() => toggleArr(selectedYears, year, setSelectedYears)}
+              <button key={`year-${i}`} onClick={() => toggleArr(selectedYears, year, setSelectedYears)}
                 className={`px-4 py-1.5 rounded-lg border text-sm cursor-pointer transition-all font-medium
                   ${active ? "border-dynamic-orange bg-dynamic-orange/10 text-dynamic-orange font-bold" : "border-white/10 bg-transparent text-slate-400 hover:border-white/25"}`}>
                 {year}
@@ -209,10 +216,10 @@ function FilterSidebar({
 
       <Section icon={<Fuel size={15} strokeWidth={1.75} />} label="Fuel Type">
         <div className="flex flex-wrap gap-2 pt-1">
-          {fuelTypes.map(fuel => {
+          {fuelTypes.map((fuel, i) => {
             const active = selectedFuels.includes(fuel);
             return (
-              <button key={fuel} onClick={() => toggleArr(selectedFuels, fuel, setSelectedFuels)}
+              <button key={`fuel-${i}`} onClick={() => toggleArr(selectedFuels, fuel, setSelectedFuels)}
                 className={`px-4 py-1.5 rounded-lg border text-sm cursor-pointer transition-all font-medium
                   ${active ? "border-dynamic-orange bg-dynamic-orange/10 text-dynamic-orange font-bold" : "border-white/10 bg-transparent text-slate-400 hover:border-white/25"}`}>
                 {fuel}
@@ -238,7 +245,7 @@ function Chip({ label, icon, onRemove }: { label: string; icon: React.ReactNode;
 }
 
 // ─── Car Card ─────────────────────────────────────────────────────────────────
-function CarCard({ car, faved, onFav, onClick }: { car: typeof allCars[0]; faved: boolean; onFav: () => void; onClick: () => void }) {
+function CarCard({ car, faved, onFav, onClick }: { car: CarData; faved: boolean; onFav: () => void; onClick: () => void }) {
   const [hovered, setHovered] = useState(false);
   const tagColor = tagColors[car.tag] ?? "#FF6B35";
   return (
@@ -250,9 +257,16 @@ function CarCard({ car, faved, onFav, onClick }: { car: typeof allCars[0]; faved
         ${hovered ? "border-dynamic-orange/40 -translate-y-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.4)]" : "border-white/[0.07]"}`}
     >
       {/* Image */}
-      <div className="relative overflow-hidden">
-        <img src={car.image} alt={car.name}
-          className={`w-full h-[190px] object-cover block transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`} />
+      <div className="relative overflow-hidden bg-[#162030]">
+        {car.images?.[0] ? (
+          <img src={car.images[0]} alt={car.name}
+            className={`w-full h-[190px] object-cover block transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`} />
+        ) : (
+          <div className="w-full h-[190px] flex flex-col items-center justify-center gap-2 bg-white/[0.03]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span className="text-slate-600 text-[0.65rem] font-semibold uppercase tracking-wider">No Image</span>
+          </div>
+        )}
         <span className="absolute top-2.5 left-2.5 text-[0.65rem] font-bold px-3 py-1 rounded-full backdrop-blur-sm border"
           style={{ background: `${tagColor}20`, color: tagColor, borderColor: `${tagColor}44` }}>
           {car.tag}
@@ -271,7 +285,7 @@ function CarCard({ car, faved, onFav, onClick }: { car: typeof allCars[0]; faved
       {/* Body */}
       <div className="p-4">
         <h3 className="text-white text-[0.95rem] font-bold mb-1">{car.name}</h3>
-        <p className="text-dynamic-orange text-xl font-extrabold mb-3">{car.priceLabel}</p>
+        <p className="text-dynamic-orange text-xl font-extrabold mb-3">{car.price_label}</p>
         <div className="flex flex-wrap gap-1.5 mb-3">
           {[
             { icon: <CalendarDays size={11} strokeWidth={1.75} />, label: car.year },
@@ -291,11 +305,13 @@ function CarCard({ car, faved, onFav, onClick }: { car: typeof allCars[0]; faved
             <User size={12} strokeWidth={1.75} /> {car.seller}
           </span>
         </div>
-        <button
-          className="w-full py-2.5 flex items-center justify-center gap-2 rounded-lg border-none text-white text-sm font-bold cursor-pointer bg-gradient-to-r from-dynamic-orange to-amber-accent hover:opacity-90 transition-opacity"
+        <a
+          href={`tel:${car.contact}`}
+          onClick={(e) => e.stopPropagation()}
+          className="w-full py-2.5 flex items-center justify-center gap-2 rounded-lg border-none text-white text-sm font-bold cursor-pointer bg-gradient-to-r from-dynamic-orange to-amber-accent hover:opacity-90 transition-opacity no-underline"
         >
-          <Phone size={14} strokeWidth={2} /> Contact Seller
-        </button>
+          <Phone size={14} strokeWidth={2} /> Contact {car.seller}
+        </a>
       </div>
     </div>
   );
@@ -304,6 +320,39 @@ function CarCard({ car, faved, onFav, onClick }: { car: typeof allCars[0]; faved
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CarsListingPage() {
   const router = useRouter();
+  // ── Data (API-only) ──
+  const [allCars, setAllCars] = useState<CarData[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  const fetchCars = useCallback(async () => {
+    try {
+      const res = await fetch('/api/vehicles?type=car');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          // Normalize API shape to local shape
+          setAllCars(data.map((v: any) => ({
+            ...v,
+            name: v.name || v.title || 'Unknown Car',
+            price_label: v.price_label ?? '₹' + Number(v.price).toLocaleString('en-IN'),
+            posted: v.posted ?? 'Recently',
+            images: v.images || (v.image_url ? [v.image_url] : []),
+          }) as CarData));
+        }
+      }
+    } catch { /* keep fallback */ } finally {
+      setDataLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchCars(); }, [fetchCars]);
+
+  // Derived filter options from live data
+  const brands = useMemo(() => [...new Set(allCars.map(c => c.brand))], [allCars]);
+  const locations = useMemo(() => [...new Set(allCars.map(c => c.location))], [allCars]);
+  const years = useMemo(() => [...new Set(allCars.map(c => c.year))].sort((a, b) => b - a), [allCars]);
+  const fuelTypes = useMemo(() => [...new Set(allCars.map(c => c.fuel))], [allCars]);
+
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
@@ -320,7 +369,7 @@ export default function CarsListingPage() {
 
   const filtered = useMemo(() => {
     let r = [...allCars];
-    if (query.trim()) { const q = query.toLowerCase(); r = r.filter(c => c.name.toLowerCase().includes(q) || c.brand.toLowerCase().includes(q) || c.location.toLowerCase().includes(q)); }
+    if (query.trim()) { const q = query.toLowerCase(); r = r.filter(c => c.name?.toLowerCase().includes(q) || c.brand?.toLowerCase().includes(q) || c.location?.toLowerCase().includes(q)); }
     if (selectedBrands.length) r = r.filter(c => selectedBrands.includes(c.brand));
     if (selectedLocations.length) r = r.filter(c => selectedLocations.includes(c.location));
     if (selectedYears.length) r = r.filter(c => selectedYears.includes(c.year));
@@ -334,9 +383,17 @@ export default function CarsListingPage() {
       case "year_asc": r.sort((a, b) => a.year - b.year); break;
     }
     return r;
-  }, [query, selectedBrands, selectedLocations, selectedYears, selectedFuels, selectedPriceRange, sortBy]);
+  }, [allCars, query, selectedBrands, selectedLocations, selectedYears, selectedFuels, selectedPriceRange, sortBy]);
 
-  const sidebarProps = { selectedBrands, setSelectedBrands, selectedLocations, setSelectedLocations, selectedYears, setSelectedYears, selectedFuels, setSelectedFuels, selectedPriceRange, setSelectedPriceRange, activeFilterCount, clearAll };
+  const sidebarProps = {
+    selectedBrands, setSelectedBrands,
+    selectedLocations, setSelectedLocations,
+    selectedYears, setSelectedYears,
+    selectedFuels, setSelectedFuels,
+    selectedPriceRange, setSelectedPriceRange,
+    activeFilterCount, clearAll,
+    brands, locations, years, fuelTypes, allCars
+  };
 
   return (
     <div className="min-h-screen bg-[#1a2636] font-heading text-slate-200">
@@ -396,11 +453,11 @@ export default function CarsListingPage() {
       {/* Active Chips */}
       {activeFilterCount > 0 && (
         <div className="flex flex-wrap gap-2 px-7 py-2.5 bg-dynamic-orange/[0.04] border-b border-white/[0.07]">
-          {selectedLocations.map(l => <Chip key={l} label={l} icon={<MapPin size={12} strokeWidth={1.75} />} onRemove={() => setSelectedLocations(p => p.filter(x => x !== l))} />)}
-          {selectedBrands.map(b => <Chip key={b} label={b} icon={<Tag size={12} strokeWidth={1.75} />} onRemove={() => setSelectedBrands(p => p.filter(x => x !== b))} />)}
-          {selectedYears.map(y => <Chip key={y} label={String(y)} icon={<CalendarDays size={12} strokeWidth={1.75} />} onRemove={() => setSelectedYears(p => p.filter(x => x !== y))} />)}
-          {selectedFuels.map(f => <Chip key={f} label={f} icon={<Fuel size={12} strokeWidth={1.75} />} onRemove={() => setSelectedFuels(p => p.filter(x => x !== f))} />)}
-          {selectedPriceRange > 0 && <Chip label={priceRanges[selectedPriceRange].label} icon={<Wallet size={12} strokeWidth={1.75} />} onRemove={() => setSelectedPriceRange(0)} />}
+          {selectedLocations.map((l, i) => <Chip key={`loc-${i}`} label={l || 'Unknown'} icon={<MapPin size={12} strokeWidth={1.75} />} onRemove={() => setSelectedLocations(p => p.filter(x => x !== l))} />)}
+          {selectedBrands.map((b, i) => <Chip key={`brand-${i}`} label={b || 'Unknown'} icon={<Tag size={12} strokeWidth={1.75} />} onRemove={() => setSelectedBrands(p => p.filter(x => x !== b))} />)}
+          {selectedYears.map((y, i) => <Chip key={`year-${i}`} label={String(y)} icon={<CalendarDays size={12} strokeWidth={1.75} />} onRemove={() => setSelectedYears(p => p.filter(x => x !== y))} />)}
+          {selectedFuels.map((f, i) => <Chip key={`fuel-${i}`} label={f || 'Unknown'} icon={<Fuel size={12} strokeWidth={1.75} />} onRemove={() => setSelectedFuels(p => p.filter(x => x !== f))} />)}
+          {selectedPriceRange > 0 && <Chip key="price" label={priceRanges[selectedPriceRange].label} icon={<Wallet size={12} strokeWidth={1.75} />} onRemove={() => setSelectedPriceRange(0)} />}
           <button onClick={clearAll} className="bg-transparent border-none text-slate-400 text-[0.78rem] cursor-pointer underline hover:text-slate-200 transition-colors">
             Clear all
           </button>
@@ -436,39 +493,48 @@ export default function CarsListingPage() {
 
         {/* Results */}
         <div className="flex-1 min-w-0">
-          <p className="mb-4 text-slate-400 text-sm">
-            <span className="text-white font-bold text-base">{filtered.length}</span> cars found
-            {query && <> for <span className="text-dynamic-orange">"{query}"</span></>}
-          </p>
-
-          {/* Detail Modal */}
-          <VehicleDetailModal
-            vehicle={selectedCar}
-            accentColor="dynamic-orange"
-            onClose={() => setSelectedCar(null)}
-            faved={selectedCar ? favs.includes(selectedCar.id) : false}
-            onFav={() => selectedCar && setFavs(f => f.includes(selectedCar.id) ? f.filter(x => x !== selectedCar.id) : [...f, selectedCar.id])}
-          />
-
-          {filtered.length === 0 ? (
-            <div className="text-center py-20 text-slate-400">
-              <Search size={48} strokeWidth={1.25} className="mx-auto mb-4 opacity-30" />
-              <h3 className="text-slate-200 text-xl font-bold mb-2">No cars found</h3>
-              <p className="text-sm mb-6">Try adjusting your filters or search</p>
-              <button onClick={clearAll} className="px-7 py-2.5 bg-dynamic-orange border-none rounded-lg text-white font-bold cursor-pointer hover:opacity-90 transition-opacity">
-                Reset Filters
-              </button>
+          {dataLoading ? (
+            <div className="flex flex-col items-center justify-center py-32 gap-4">
+              <div className="w-10 h-10 border-4 border-dynamic-orange/20 border-t-dynamic-orange rounded-full animate-spin" />
+              <p className="text-slate-500 font-bold tracking-widest uppercase text-[0.65rem]">Fetching Latest Cars...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(290px,1fr))] gap-5">
-              {filtered.map(car => (
-                <CarCard key={car.id} car={car}
-                  faved={favs.includes(car.id)}
-                  onFav={() => setFavs(f => f.includes(car.id) ? f.filter(x => x !== car.id) : [...f, car.id])}
-                  onClick={() => setSelectedCar(car)}
-                />
-              ))}
-            </div>
+            <>
+              <p className="mb-4 text-slate-400 text-sm">
+                <span className="text-white font-bold text-base">{filtered.length}</span> cars found
+                {query && <> for <span className="text-dynamic-orange">"{query}"</span></>}
+              </p>
+
+              {/* Detail Modal */}
+              <VehicleDetailModal
+                vehicle={selectedCar}
+                accentColor="dynamic-orange"
+                onClose={() => setSelectedCar(null)}
+                faved={selectedCar ? favs.includes(selectedCar.id) : false}
+                onFav={() => selectedCar && setFavs(f => f.includes(selectedCar.id) ? f.filter(x => x !== selectedCar.id) : [...f, selectedCar.id])}
+              />
+
+              {filtered.length === 0 ? (
+                <div className="text-center py-20 text-slate-400">
+                  <Search size={48} strokeWidth={1.25} className="mx-auto mb-4 opacity-30" />
+                  <h3 className="text-slate-200 text-xl font-bold mb-2">No cars found</h3>
+                  <p className="text-sm mb-6">Try adjusting your filters or search</p>
+                  <button onClick={clearAll} className="px-7 py-2.5 bg-dynamic-orange border-none rounded-lg text-white font-bold cursor-pointer hover:opacity-90 transition-opacity">
+                    Reset Filters
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(290px,1fr))] gap-5">
+                  {filtered.map(car => (
+                    <CarCard key={car.id} car={car}
+                      faved={favs.includes(car.id)}
+                      onFav={() => setFavs(f => f.includes(car.id) ? f.filter(x => x !== car.id) : [...f, car.id])}
+                      onClick={() => setSelectedCar(car)}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

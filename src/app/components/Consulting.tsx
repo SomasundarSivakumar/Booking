@@ -8,19 +8,18 @@ import {
     PlusCircle, TrendingUp, Users, LayoutGrid, ShoppingBag, Phone
 } from "lucide-react";
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const listings = {
-    cars: [
-        { id: 1, name: "Honda City 2020", price: "₹7,50,000", year: 2020, km: "32,000 km", fuel: "Petrol", tag: "Best Deal", tagColor: "#FF6B35", image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=600&q=80" },
-        { id: 2, name: "Maruti Swift 2021", price: "₹5,20,000", year: 2021, km: "18,000 km", fuel: "Petrol", tag: "Low Mileage", tagColor: "#22c55e", image: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600&q=80" },
-        { id: 3, name: "Toyota Innova 2019", price: "₹13,80,000", year: 2019, km: "55,000 km", fuel: "Diesel", tag: "Family Pick", tagColor: "#4682B4", image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80" },
-    ],
-    bikes: [
-        { id: 1, name: "Royal Enfield Classic", price: "₹1,40,000", year: 2021, km: "12,000 km", fuel: "Petrol", tag: "Top Pick", tagColor: "#FF6B35", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" },
-        { id: 2, name: "KTM Duke 200", price: "₹95,000", year: 2020, km: "22,000 km", fuel: "Petrol", tag: "Sports", tagColor: "#a855f7", image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=600&q=80" },
-        { id: 3, name: "Honda Activa 6G", price: "₹58,000", year: 2022, km: "8,000 km", fuel: "Petrol", tag: "Like New", tagColor: "#22c55e", image: "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=600&q=80" },
-    ],
-};
+// ─── Data Types ───────────────────────────────────────────────────────────────
+interface ListingItem {
+    id: number;
+    name: string;
+    price: string;
+    year: number;
+    km: string;
+    fuel: string;
+    tag: string;
+    tagColor: string;
+    image: string;
+}
 
 const features = [
     { icon: <BadgeCheck size={15} strokeWidth={1.75} />, label: "Verified Sellers & Buyers" },
@@ -29,9 +28,15 @@ const features = [
     { icon: <CreditCard size={15} strokeWidth={1.75} />, label: "Easy EMI Options" },
 ];
 
+const tagColors: Record<string, string> = {
+    "Best Deal": "#FF6B35", "Low Mileage": "#22c55e", "Family Pick": "#4682B4",
+    "Like New": "#22c55e", "Popular": "#a855f7", "Verified": "#22c55e",
+    "Premium": "#ef4444", "Top Pick": "#FF6B35", "Sports": "#a855f7", "Racing": "#ef4444"
+};
+
 // ─── Listing Card ─────────────────────────────────────────────────────────────
 function ListingCard({ item, accentClass, gradientClass, onViewClick }: {
-    item: typeof listings.cars[0];
+    item: ListingItem;
     accentClass: string;
     gradientClass: string;
     onViewClick: () => void;
@@ -56,7 +61,7 @@ function ListingCard({ item, accentClass, gradientClass, onViewClick }: {
 
             {/* Body */}
             <div className="p-3">
-                <h3 className="text-slate-200 text-[0.82rem] font-bold mb-1">{item.name}</h3>
+                <h3 className="text-slate-200 text-[0.82rem] font-bold mb-1 truncate">{item.name}</h3>
                 <p className={`text-[0.95rem] font-extrabold mb-2 ${accentClass}`}>{item.price}</p>
                 <div className="flex flex-wrap gap-1 mb-2.5">
                     {[
@@ -81,7 +86,7 @@ function ListingCard({ item, accentClass, gradientClass, onViewClick }: {
 // ─── Section Block ────────────────────────────────────────────────────────────
 function SectionBlock({ title, subtitle, description, items, imageUrl, imageAlt, reverse, accentClass, badgeBg, gradientClass, badgeColor, onExploreClick, onCardClick, icon }: {
     title: string; subtitle: string; description: string;
-    items: typeof listings.cars; imageUrl: string; imageAlt: string;
+    items: ListingItem[]; imageUrl: string; imageAlt: string;
     reverse: boolean; accentClass: string; badgeBg: string; gradientClass: string; badgeColor: string;
     onExploreClick: () => void; onCardClick: () => void; icon: React.ReactNode;
 }) {
@@ -151,7 +156,7 @@ function SectionBlock({ title, subtitle, description, items, imageUrl, imageAlt,
 
                 {/* Cards */}
                 <div className="grid grid-cols-3 gap-3">
-                    {items.map(item => (
+                    {items.slice(0, 3).map(item => (
                         <ListingCard key={item.id} item={item} accentClass={accentClass} gradientClass={gradientClass} onViewClick={onCardClick} />
                     ))}
                 </div>
@@ -177,8 +182,56 @@ function SectionBlock({ title, subtitle, description, items, imageUrl, imageAlt,
 // ─── Main Export ──────────────────────────────────────────────────────────────
 export const Consulting = () => {
     const router = useRouter();
+    const [listings, setListings] = useState<{ cars: ListingItem[]; bikes: ListingItem[] }>({ cars: [], bikes: [] });
+    const [loading, setLoading] = useState(true);
+
+    const fetchListings = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch('/api/vehicles');
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    const normalized = data.map((v: any) => ({
+                        id: v.id,
+                        type: v.type,
+                        name: v.name,
+                        price: v.price_label || '₹' + Number(v.price).toLocaleString('en-IN'),
+                        year: v.year,
+                        km: v.km,
+                        fuel: v.fuel,
+                        tag: v.tag,
+                        tagColor: tagColors[v.tag] || "#FF6B35",
+                        image: v.images?.[0] || ""
+                    }));
+                    setListings({
+                        cars: normalized.filter((v: any) => v.type === 'car' || !v.type),
+                        bikes: normalized.filter((v: any) => v.type === 'bike')
+                    });
+                }
+            }
+        } catch (err) {
+            console.error("Failed to fetch consulting listings:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchListings();
+    }, []);
+
     const toCars = () => router.push("/consulting/cars");
     const toBikes = () => router.push("/consulting/bikes");
+
+    if (loading) {
+        return (
+            <div className="bg-[#0f172a] py-32 flex flex-col items-center justify-center gap-6">
+                <div className="w-12 h-12 border-4 border-dynamic-orange/20 border-t-dynamic-orange rounded-full animate-spin" />
+                <p className="text-slate-400 font-bold tracking-widest uppercase text-xs">Loading Live Marketplace...</p>
+            </div>
+        );
+    }
 
     return (
         <section className="bg-gradient-to-b from-[#0f172a] to-[#1a2636] pt-12 overflow-hidden font-heading text-slate-200">

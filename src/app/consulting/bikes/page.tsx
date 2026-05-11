@@ -8,27 +8,25 @@ import {
   Gauge, ArrowUpDown, Phone, Sparkles, BadgeCheck
 } from "lucide-react";
 import { LocationSearch } from '@/app/components/LocationSearch';
-import VehicleDetailModal from '@/app/components/VehicleDetailModal';
+import VehicleDetailModal, { VehicleData } from '@/app/components/VehicleDetailModal';
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const allBikes = [
-  { id: 1, name: "Royal Enfield Classic 350", brand: "Royal Enfield", price: 140000, priceLabel: "₹1,40,000", year: 2021, km: "12,000 km", fuel: "Petrol", tag: "Top Pick", location: "Chennai", seller: "Rajesh K", posted: "2 days ago", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80" },
-  { id: 2, name: "KTM Duke 200", brand: "KTM", price: 95000, priceLabel: "₹95,000", year: 2020, km: "22,000 km", fuel: "Petrol", tag: "Sports", location: "Coimbatore", seller: "Arjun S", posted: "5 days ago", image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=700&q=80" },
-  { id: 3, name: "Honda Activa 6G", brand: "Honda", price: 58000, priceLabel: "₹58,000", year: 2022, km: "8,000 km", fuel: "Petrol", tag: "Like New", location: "Madurai", seller: "Priya M", posted: "1 day ago", image: "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=700&q=80" },
-  { id: 4, name: "Yamaha R15 V4", brand: "Yamaha", price: 120000, priceLabel: "₹1,20,000", year: 2022, km: "15,000 km", fuel: "Petrol", tag: "Racing", location: "Salem", seller: "Vijay T", posted: "3 days ago", image: "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=700&q=80" },
-  { id: 5, name: "Bajaj Pulsar NS200", brand: "Bajaj", price: 78000, priceLabel: "₹78,000", year: 2020, km: "30,000 km", fuel: "Petrol", tag: "Popular", location: "Trichy", seller: "Kumar R", posted: "Today", image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&q=80" },
-  { id: 6, name: "TVS Apache RTR 200", brand: "TVS", price: 85000, priceLabel: "₹85,000", year: 2021, km: "19,000 km", fuel: "Petrol", tag: "Verified", location: "Chennai", seller: "Suresh A", posted: "4 days ago", image: "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?w=700&q=80" },
-  { id: 7, name: "Royal Enfield Meteor 350", brand: "Royal Enfield", price: 165000, priceLabel: "₹1,65,000", year: 2022, km: "10,000 km", fuel: "Petrol", tag: "Premium", location: "Coimbatore", seller: "Deepak R", posted: "1 week ago", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80" },
-  { id: 8, name: "Honda CB Shine", brand: "Honda", price: 48000, priceLabel: "₹48,000", year: 2020, km: "25,000 km", fuel: "Petrol", tag: "Best Deal", location: "Erode", seller: "Siva K", posted: "6 days ago", image: "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=700&q=80" },
-  { id: 9, name: "Yamaha FZ-S V3", brand: "Yamaha", price: 72000, priceLabel: "₹72,000", year: 2021, km: "18,000 km", fuel: "Petrol", tag: "Popular", location: "Madurai", seller: "Arun P", posted: "2 days ago", image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&q=80" },
-  { id: 10, name: "Bajaj Dominar 400", brand: "Bajaj", price: 135000, priceLabel: "₹1,35,000", year: 2021, km: "20,000 km", fuel: "Petrol", tag: "Top Pick", location: "Trichy", seller: "Mani V", posted: "3 days ago", image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=700&q=80" },
-  { id: 11, name: "TVS Jupiter", brand: "TVS", price: 42000, priceLabel: "₹42,000", year: 2021, km: "14,000 km", fuel: "Petrol", tag: "Like New", location: "Salem", seller: "Priya N", posted: "5 days ago", image: "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?w=700&q=80" },
-  { id: 12, name: "KTM RC 200", brand: "KTM", price: 115000, priceLabel: "₹1,15,000", year: 2020, km: "28,000 km", fuel: "Petrol", tag: "Sports", location: "Chennai", seller: "Ganesh M", posted: "Today", image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=700&q=80" },
-];
-
-const brands = [...new Set(allBikes.map(b => b.brand))];
-const locations = [...new Set(allBikes.map(b => b.location))];
-const years = [...new Set(allBikes.map(b => b.year))].sort((a, b) => b - a);
+// ─── Data Types ──────────────────
+type BikeData = {
+  id: number;
+  name: string;
+  brand: string;
+  price: number;
+  price_label: string;
+  year: number;
+  km: string;
+  fuel: string;
+  tag: string;
+  location: string;
+  seller: string;
+  contact: string;
+  posted: string;
+  images: string[];
+};
 
 const priceRanges = [
   { label: "All Prices", min: 0, max: Infinity },
@@ -98,12 +96,17 @@ function FilterSidebar({
   selectedYears, setSelectedYears,
   selectedPriceRange, setSelectedPriceRange,
   activeFilterCount, clearAll,
+  brands, locations, years, allBikes
 }: {
   selectedBrands: string[]; setSelectedBrands: React.Dispatch<React.SetStateAction<string[]>>;
   selectedLocations: string[]; setSelectedLocations: React.Dispatch<React.SetStateAction<string[]>>;
   selectedYears: number[]; setSelectedYears: React.Dispatch<React.SetStateAction<number[]>>;
   selectedPriceRange: number; setSelectedPriceRange: React.Dispatch<React.SetStateAction<number>>;
   activeFilterCount: number; clearAll: () => void;
+  brands: string[];
+  locations: string[];
+  years: number[];
+  allBikes: BikeData[];
 }) {
   const toggleArr = <V,>(arr: V[], val: V, set: React.Dispatch<React.SetStateAction<V[]>>) =>
     set(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
@@ -163,28 +166,28 @@ function FilterSidebar({
       </div>
 
       <Section icon={<MapPin size={15} strokeWidth={1.75} />} label="Location">
-        {locations.map(loc => (
-          <CheckRow key={loc} label={loc} count={allBikes.filter(b => b.location === loc).length}
+        {locations.map((loc, i) => (
+          <CheckRow key={`loc-${i}`} label={loc || 'Unknown'} count={allBikes.filter(b => b.location === loc).length}
             checked={selectedLocations.includes(loc)} onChange={() => toggleArr(selectedLocations, loc, setSelectedLocations)} />
         ))}
       </Section>
       <Section icon={<Wallet size={15} strokeWidth={1.75} />} label="Budget">
         {priceRanges.map((range, i) => (
-          <RadioRow key={i} label={range.label} checked={selectedPriceRange === i} onChange={() => setSelectedPriceRange(i)} />
+          <RadioRow key={`price-${i}`} label={range.label} checked={selectedPriceRange === i} onChange={() => setSelectedPriceRange(i)} />
         ))}
       </Section>
       <Section icon={<Tag size={15} strokeWidth={1.75} />} label="Brand">
-        {brands.map(brand => (
-          <CheckRow key={brand} label={brand} count={allBikes.filter(b => b.brand === brand).length}
+        {brands.map((brand, i) => (
+          <CheckRow key={`brand-${i}`} label={brand || 'Unknown'} count={allBikes.filter(b => b.brand === brand).length}
             checked={selectedBrands.includes(brand)} onChange={() => toggleArr(selectedBrands, brand, setSelectedBrands)} />
         ))}
       </Section>
       <Section icon={<CalendarDays size={15} strokeWidth={1.75} />} label="Year">
         <div className="flex flex-wrap gap-2 pt-1">
-          {years.map(year => {
+          {years.map((year, i) => {
             const active = selectedYears.includes(year);
             return (
-              <button key={year} onClick={() => toggleArr(selectedYears, year, setSelectedYears)}
+              <button key={`year-${i}`} onClick={() => toggleArr(selectedYears, year, setSelectedYears)}
                 className={`px-4 py-1.5 rounded-lg border text-sm cursor-pointer transition-all font-medium
                   ${active ? "border-steel-blue bg-steel-blue/10 text-steel-blue font-bold" : "border-white/10 bg-transparent text-slate-400 hover:border-white/25"}`}>
                 {year}
@@ -197,18 +200,7 @@ function FilterSidebar({
   );
 }
 
-function Chip({ label, icon, onRemove }: { label: string; icon: React.ReactNode; onRemove: () => void }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 pl-2 pr-2.5 py-1 bg-steel-blue/10 border border-steel-blue/30 rounded-full text-[0.78rem] text-steel-blue font-semibold">
-      {icon} {label}
-      <button onClick={onRemove} className="bg-transparent border-none text-steel-blue cursor-pointer flex p-0 ml-0.5 hover:opacity-70 transition-opacity">
-        <X size={12} strokeWidth={2.5} />
-      </button>
-    </span>
-  );
-}
-
-function BikeCard({ bike, faved, onFav, onClick }: { bike: typeof allBikes[0]; faved: boolean; onFav: () => void; onClick: () => void }) {
+function BikeCard({ bike, faved, onFav, onClick }: { bike: BikeData; faved: boolean; onFav: () => void; onClick: () => void }) {
   const [hovered, setHovered] = useState(false);
   const tagColor = tagColors[bike.tag] ?? "#4682B4";
   return (
@@ -219,9 +211,16 @@ function BikeCard({ bike, faved, onFav, onClick }: { bike: typeof allBikes[0]; f
       className={`bg-[#1a2a3a] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border
         ${hovered ? "border-steel-blue/40 -translate-y-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.4)]" : "border-white/[0.07]"}`}
     >
-      <div className="relative overflow-hidden">
-        <img src={bike.image} alt={bike.name}
-          className={`w-full h-[190px] object-cover block transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`} />
+      <div className="relative overflow-hidden bg-[#10192a]">
+        {bike.images?.[0] ? (
+          <img src={bike.images[0]} alt={bike.name}
+            className={`w-full h-[190px] object-cover block transition-transform duration-500 ${hovered ? "scale-105" : "scale-100"}`} />
+        ) : (
+          <div className="w-full h-[190px] flex flex-col items-center justify-center gap-2 bg-white/[0.03]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span className="text-slate-600 text-[0.65rem] font-semibold uppercase tracking-wider">No Image</span>
+          </div>
+        )}
         <span className="absolute top-2.5 left-2.5 text-[0.65rem] font-bold px-3 py-1 rounded-full backdrop-blur-sm border"
           style={{ background: `${tagColor}20`, color: tagColor, borderColor: `${tagColor}44` }}>
           {bike.tag}
@@ -239,7 +238,7 @@ function BikeCard({ bike, faved, onFav, onClick }: { bike: typeof allBikes[0]; f
 
       <div className="p-4">
         <h3 className="text-white text-[0.95rem] font-bold mb-1">{bike.name}</h3>
-        <p className="text-steel-blue text-xl font-extrabold mb-3">{bike.priceLabel}</p>
+        <p className="text-steel-blue text-xl font-extrabold mb-3">{bike.price_label}</p>
         <div className="flex flex-wrap gap-1.5 mb-3">
           {[
             { icon: <CalendarDays size={11} strokeWidth={1.75} />, label: bike.year },
@@ -255,9 +254,13 @@ function BikeCard({ bike, faved, onFav, onClick }: { bike: typeof allBikes[0]; f
           <span className="flex items-center gap-1 text-[0.75rem] text-slate-400"><MapPin size={12} strokeWidth={1.75} /> {bike.location}</span>
           <span className="flex items-center gap-1 text-[0.75rem] text-slate-400"><User size={12} strokeWidth={1.75} /> {bike.seller}</span>
         </div>
-        <button className="w-full py-2.5 flex items-center justify-center gap-2 rounded-lg border-none text-white text-sm font-bold cursor-pointer bg-gradient-to-r from-steel-blue to-primary hover:opacity-90 transition-opacity">
-          <Phone size={14} strokeWidth={2} /> Contact Seller
-        </button>
+        <a
+          href={`tel:${bike.contact}`}
+          onClick={(e) => e.stopPropagation()}
+          className="w-full py-2.5 flex items-center justify-center gap-2 rounded-lg border-none text-white text-sm font-bold cursor-pointer bg-gradient-to-r from-steel-blue to-primary hover:opacity-90 transition-opacity no-underline"
+        >
+          <Phone size={14} strokeWidth={2} /> Contact {bike.seller}
+        </a>
       </div>
     </div>
   );
@@ -266,6 +269,37 @@ function BikeCard({ bike, faved, onFav, onClick }: { bike: typeof allBikes[0]; f
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function BikesListingPage() {
   const router = useRouter();
+  const [allBikes, setAllBikes] = useState<BikeData[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  const fetchBikes = async () => {
+    try {
+      const res = await fetch('/api/vehicles?type=bike');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAllBikes(data.map((v: any) => ({
+            ...v,
+            name: v.name || v.title || 'Unknown Bike',
+            price_label: v.price_label ?? '₹' + Number(v.price).toLocaleString('en-IN'),
+            posted: v.posted ?? 'Recently',
+            images: v.images || (v.image_url ? [v.image_url] : []),
+          })));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch bikes:", err);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchBikes(); }, []);
+
+  const brands = useMemo(() => [...new Set(allBikes.map(b => b.brand))], [allBikes]);
+  const locations = useMemo(() => [...new Set(allBikes.map(b => b.location))], [allBikes]);
+  const years = useMemo(() => [...new Set(allBikes.map(b => b.year))].sort((a, b) => b - a), [allBikes]);
+
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
@@ -274,14 +308,14 @@ export default function BikesListingPage() {
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [favs, setFavs] = useState<number[]>([]);
-  const [selectedBike, setSelectedBike] = useState<typeof allBikes[0] | null>(null);
+  const [selectedBike, setSelectedBike] = useState<BikeData | null>(null);
 
   const clearAll = () => { setSelectedBrands([]); setSelectedLocations([]); setSelectedYears([]); setSelectedPriceRange(0); setQuery(""); };
   const activeFilterCount = selectedBrands.length + selectedLocations.length + selectedYears.length + (selectedPriceRange > 0 ? 1 : 0);
 
   const filtered = useMemo(() => {
     let r = [...allBikes];
-    if (query.trim()) { const q = query.toLowerCase(); r = r.filter(b => b.name.toLowerCase().includes(q) || b.brand.toLowerCase().includes(q) || b.location.toLowerCase().includes(q)); }
+    if (query.trim()) { const q = query.toLowerCase(); r = r.filter(b => b.name?.toLowerCase().includes(q) || b.brand?.toLowerCase().includes(q) || b.location?.toLowerCase().includes(q)); }
     if (selectedBrands.length) r = r.filter(b => selectedBrands.includes(b.brand));
     if (selectedLocations.length) r = r.filter(b => selectedLocations.includes(b.location));
     if (selectedYears.length) r = r.filter(b => selectedYears.includes(b.year));
@@ -294,9 +328,16 @@ export default function BikesListingPage() {
       case "year_asc": r.sort((a, b) => a.year - b.year); break;
     }
     return r;
-  }, [query, selectedBrands, selectedLocations, selectedYears, selectedPriceRange, sortBy]);
+  }, [allBikes, query, selectedBrands, selectedLocations, selectedYears, selectedPriceRange, sortBy]);
 
-  const sidebarProps = { selectedBrands, setSelectedBrands, selectedLocations, setSelectedLocations, selectedYears, setSelectedYears, selectedPriceRange, setSelectedPriceRange, activeFilterCount, clearAll };
+  const sidebarProps = {
+    selectedBrands, setSelectedBrands,
+    selectedLocations, setSelectedLocations,
+    selectedYears, setSelectedYears,
+    selectedPriceRange, setSelectedPriceRange,
+    activeFilterCount, clearAll,
+    brands, locations, years, allBikes
+  };
 
   return (
     <div className="min-h-screen bg-[#152030] font-heading text-slate-200">
@@ -379,40 +420,49 @@ export default function BikesListingPage() {
 
         {/* Content Grid */}
         <main className="flex-1">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-black mb-1">Pre-owned <span className="text-steel-blue">Bikes</span></h1>
-              <p className="text-slate-500 text-sm font-medium">Found {filtered.length} verified listings in your area</p>
-            </div>
-          </div>
-
-          {/* Detail Modal */}
-          <VehicleDetailModal
-            vehicle={selectedBike}
-            accentColor="steel-blue"
-            onClose={() => setSelectedBike(null)}
-            faved={selectedBike ? favs.includes(selectedBike.id) : false}
-            onFav={() => selectedBike && setFavs(f => f.includes(selectedBike.id) ? f.filter(x => x !== selectedBike.id) : [...f, selectedBike.id])}
-          />
-
-          {filtered.length > 0 ? (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
-              {filtered.map(bike => (
-                <BikeCard key={bike.id} bike={bike}
-                  faved={favs.includes(bike.id)}
-                  onFav={() => setFavs(f => f.includes(bike.id) ? f.filter(x => x !== bike.id) : [...f, bike.id])}
-                  onClick={() => setSelectedBike(bike)}
-                />
-              ))}
+          {dataLoading ? (
+            <div className="flex flex-col items-center justify-center py-32 gap-4">
+              <div className="w-10 h-10 border-4 border-steel-blue/20 border-t-steel-blue rounded-full animate-spin" />
+              <p className="text-slate-500 font-bold tracking-widest uppercase text-[0.65rem]">Fetching Latest Bikes...</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-24 bg-[#1e2f42] rounded-3xl border border-dashed border-white/10">
-              <div className="w-20 h-20 bg-steel-blue/10 rounded-full flex items-center justify-center mb-6">
-                 <Search size={40} className="text-steel-blue/50" />
+            <>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-3xl font-black mb-1">Pre-owned <span className="text-steel-blue">Bikes</span></h1>
+                  <p className="text-slate-500 text-sm font-medium">Found {filtered.length} verified listings in your area</p>
+                </div>
               </div>
-              <h3 className="text-2xl font-black mb-2">No bikes found</h3>
-              <p className="text-slate-500 font-medium">Try adjusting your filters or search terms</p>
-            </div>
+
+              {/* Detail Modal */}
+              <VehicleDetailModal
+                vehicle={selectedBike}
+                accentColor="steel-blue"
+                onClose={() => setSelectedBike(null)}
+                faved={selectedBike ? favs.includes(selectedBike.id) : false}
+                onFav={() => selectedBike && setFavs(f => f.includes(selectedBike.id) ? f.filter(x => x !== selectedBike.id) : [...f, selectedBike.id])}
+              />
+
+              {filtered.length > 0 ? (
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+                  {filtered.map(bike => (
+                    <BikeCard key={bike.id} bike={bike}
+                      faved={favs.includes(bike.id)}
+                      onFav={() => setFavs(f => f.includes(bike.id) ? f.filter(x => x !== bike.id) : [...f, bike.id])}
+                      onClick={() => setSelectedBike(bike)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-24 bg-[#1e2f42] rounded-3xl border border-dashed border-white/10">
+                  <div className="w-20 h-20 bg-steel-blue/10 rounded-full flex items-center justify-center mb-6">
+                    <Search size={40} className="text-steel-blue/50" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-2">No bikes found</h3>
+                  <p className="text-slate-500 font-medium">Try adjusting your filters or search terms</p>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>

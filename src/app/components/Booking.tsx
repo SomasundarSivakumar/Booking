@@ -1,9 +1,11 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import { SearchSelect, Option } from './SearchSelect';
 import { LocationAsyncSelect } from './LocationAsyncSelect';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import jsPDF from 'jspdf';
 
 const CAR_OPTIONS = [
     { label: 'Swift Dzire (Sedan) - ₹11/km', value: 'swift_dzire', rate: 11 },
@@ -24,6 +26,8 @@ export const Booking = () => {
     const [pickupTime, setPickupTime] = useState<Date | null>(null);
     const [distanceKm, setDistanceKm] = useState<number | null>(null);
     const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
+    const [contact, setContact] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (pickupLocation && dropLocation) {
@@ -69,6 +73,96 @@ export const Booking = () => {
             }
         }
     }
+
+    const [bookingTicket, setBookingTicket] = useState<any>(null);
+    const autoDownloadTicketRef = useRef(false);
+
+    const generateTicketPDF = useCallback(async (ticket: any, fileName: string) => {
+        const element = document.getElementById('pdf-ticket-container');
+        if (!element) return;
+
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#2D3E50'
+            });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({ unit: 'mm', format: [105, 200] });
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(fileName);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (bookingTicket && autoDownloadTicketRef.current) {
+            // Give DOM time to render the hidden container
+            const timer = setTimeout(() => {
+                const fileName = `booking-ticket-${bookingTicket.id?.split('-')[0]?.toUpperCase() || 'ticket'}.pdf`;
+                generateTicketPDF(bookingTicket, fileName);
+                autoDownloadTicketRef.current = false;
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [bookingTicket, generateTicketPDF]);
+
+    const handleBooking = async () => {
+        if (!pickupLocation || !dropLocation || !pickupDate || !selectedCar || !contact) {
+            alert('Please fill out all required fields (Locations, Date, Car Model, Contact Number).');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                trip_type: tripType,
+                car_model: selectedCar.label,
+                pickup_location: pickupLocation.label,
+                drop_location: dropLocation.label,
+                contact: contact,
+                pickup_date: pickupDate.toISOString().split('T')[0],
+                return_date: returnDate ? returnDate.toISOString().split('T')[0] : null,
+                pickup_time: pickupTime ? pickupTime.toLocaleTimeString() : null,
+                distance_km: distanceKm,
+                total_rate: totalRate,
+            };
+
+            const res = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                autoDownloadTicketRef.current = true;
+                setBookingTicket(data);
+
+                // Clear form
+                setContact('');
+                setSelectedCar(null);
+                setPickupLocation(null);
+                setDropLocation(null);
+                setDistanceKm(null);
+                setPickupDate(null);
+                setReturnDate(null);
+                setPickupTime(null);
+                setTripType('one-way');
+            } else {
+                const data = await res.json();
+                alert('Error placing booking: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Failed to book', error);
+            alert('An error occurred while placing the booking.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <section id="booking" className="w-full relative  h-screen  flex items-center justify-center">
@@ -140,7 +234,7 @@ export const Booking = () => {
                                     />
                                 </div>
 
-                                {tripType === 'round-trip' ? (
+                                {tripType === 'round-trip' && (
                                     <div className="space-y-1 flex flex-col">
                                         <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Return Date</label>
                                         <DatePicker
@@ -152,25 +246,24 @@ export const Booking = () => {
                                             dateFormat="dd/MM/yyyy"
                                         />
                                     </div>
-                                ) : (
-                                    <div className="space-y-1 flex flex-col">
-                                        <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Pickup Time</label>
-                                        <DatePicker
-                                            selected={pickupTime}
-                                            onChange={(date: Date | null) => setPickupTime(date)}
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            timeIntervals={15}
-                                            timeCaption="Time"
-                                            dateFormat="h:mm aa"
-                                            placeholderText="Select time"
-                                            className="w-full p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
-                                        />
-                                    </div>
                                 )}
+                                <div className="space-y-1 flex flex-col">
+                                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Pickup Time</label>
+                                    <DatePicker
+                                        selected={pickupTime}
+                                        onChange={(date: Date | null) => setPickupTime(date)}
+                                        showTimeSelect
+                                        showTimeSelectOnly
+                                        timeIntervals={15}
+                                        timeCaption="Time"
+                                        dateFormat="h:mm aa"
+                                        placeholderText="Select time"
+                                        className="w-full p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
+                                    />
+                                </div>
 
-                                {/* Car Type */}
-                                <div className="space-y-1 md:col-span-2 mt-2">
+                                {/* Car Type & Contact */}
+                                <div className="space-y-1 md:col-span-1 mt-2">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Select Car Model</label>
                                     <SearchSelect
                                         options={CAR_OPTIONS}
@@ -179,6 +272,16 @@ export const Booking = () => {
                                         placeholder="Search and choose your preferred car..."
                                         searchPlaceholder="Search cars..."
                                         emptyMessage="No cars matched your search."
+                                    />
+                                </div>
+                                <div className="space-y-1 md:col-span-1 mt-2">
+                                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Contact Number</label>
+                                    <input
+                                        type="tel"
+                                        placeholder="Enter your phone number"
+                                        value={contact}
+                                        onChange={e => setContact(e.target.value)}
+                                        className="w-full p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
                                     />
                                 </div>
                             </div>
@@ -214,8 +317,12 @@ export const Booking = () => {
 
                             {/* Call to Action */}
                             <div className="mt-8">
-                                <button className="w-full bg-dynamic-orange hover:bg-[#ff8559] text-white font-bold text-lg py-4 rounded-lg transition-transform hover:scale-[1.02] shadow-[0_10px_20px_rgba(255,107,53,0.3)] uppercase tracking-wide">
-                                    Book Ride Now
+                                <button
+                                    onClick={handleBooking}
+                                    disabled={isSubmitting}
+                                    className="w-full bg-dynamic-orange hover:bg-[#ff8559] text-white font-bold text-lg py-4 rounded-lg transition-transform hover:scale-[1.02] shadow-[0_10px_20px_rgba(255,107,53,0.3)] uppercase tracking-wide disabled:opacity-50 disabled:hover:scale-100 cursor-pointer border-none"
+                                >
+                                    {isSubmitting ? 'Booking...' : 'Book Ride Now'}
                                 </button>
                             </div>
                         </div>
@@ -227,6 +334,178 @@ export const Booking = () => {
                 </div>
             </div>
 
+            {/* Booking Ticket Modal — Shimmer Grid */}
+            {bookingTicket && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+                    <div className="shimmer-border bg-white text-black p-5 rounded-2xl w-full max-w-lg relative shadow-2xl animate-scale-in">
+                        <button
+                            onClick={() => setBookingTicket(null)}
+                            className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 hover:text-black font-bold transition-colors cursor-pointer border-none z-10"
+                        >
+                            &times;
+                        </button>
+
+                        {/* Header */}
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-11 h-11 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-900 leading-tight">Booking Confirmed!</h2>
+                                <p className="text-xs text-gray-500">Your ride has been successfully booked.</p>
+                            </div>
+                        </div>
+
+                        {/* Details Grid with animations */}
+                        <div className="bg-gray-50 rounded-xl border border-gray-100 p-4">
+                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div className="grid-item-animate bg-white rounded-lg p-2.5 border border-gray-100">
+                                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Booking ID</span>
+                                    <span className="font-mono font-bold text-gray-900 text-xs">{bookingTicket.id?.split('-')[0]?.toUpperCase() || 'N/A'}</span>
+                                </div>
+                                <div className="grid-item-animate bg-white rounded-lg p-2.5 border border-gray-100">
+                                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Trip Type</span>
+                                    <span className="capitalize font-medium text-gray-900 text-xs">{bookingTicket.trip_type?.replace('-', ' ')}</span>
+                                </div>
+                                <div className="grid-item-animate bg-white rounded-lg p-2.5 border border-gray-100">
+                                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Car Model</span>
+                                    <span className="font-medium text-gray-900 text-xs">{bookingTicket.car_model}</span>
+                                </div>
+                                <div className="grid-item-animate bg-white rounded-lg p-2.5 border border-gray-100">
+                                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Contact</span>
+                                    <span className="font-medium text-gray-900 text-xs">{bookingTicket.contact}</span>
+                                </div>
+                                <div className="grid-item-animate bg-white rounded-lg p-2.5 border border-gray-100">
+                                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Date & Time</span>
+                                    <span className="font-medium text-gray-900 text-xs">{bookingTicket.pickup_date} {bookingTicket.pickup_time ? `| ${bookingTicket.pickup_time}` : ''}</span>
+                                </div>
+                                <div className="grid-item-animate bg-white rounded-lg p-2.5 border border-gray-100">
+                                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Est. Distance</span>
+                                    <span className="font-medium text-gray-900 text-xs">{bookingTicket.distance_km} km</span>
+                                </div>
+                            </div>
+
+                            {/* Route - full width */}
+                            <div className="grid-item-animate mt-3 bg-white rounded-lg p-2.5 border border-gray-100">
+                                <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Route</span>
+                                <div className="flex items-center gap-2 text-xs text-gray-800">
+                                    <span className="text-dynamic-orange text-[8px]">●</span>
+                                    <span className="font-medium truncate">{bookingTicket.pickup_location}</span>
+                                    <span className="text-gray-400 flex-shrink-0">→</span>
+                                    <span className="text-dynamic-orange text-[8px]">●</span>
+                                    <span className="font-medium truncate">{bookingTicket.drop_location}</span>
+                                </div>
+                            </div>
+
+                            {/* Toll Allowance */}
+                            <div className="grid-item-animate mt-3 bg-amber-50 rounded-lg p-2.5 border border-amber-200">
+                                <span className="block text-[10px] font-semibold text-amber-600 uppercase tracking-wider mb-0.5">🛣️ Toll Allowance</span>
+                                <span className="font-medium text-gray-800 text-xs">Toll charges as per actuals – to be paid by passenger directly at toll plazas.</span>
+                            </div>
+
+                            {/* Total Rate - highlighted */}
+                            <div className="mt-3 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-3 border border-orange-200 flex justify-between items-center">
+                                <span className="font-bold text-gray-800 text-sm">Total Rate</span>
+                                <span className="font-black text-dynamic-orange text-2xl">₹{bookingTicket.total_rate?.toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        {/* Notes */}
+                        <div className="mt-3 flex gap-3 text-[10px] text-gray-500">
+                            <p className="flex items-start gap-1 flex-1"><span className="mt-px">⚠️</span><span>Extra km charges apply beyond estimated route.</span></p>
+                            <p className="flex items-start gap-1 flex-1"><span className="mt-px">💬</span><span>Confirmation sent to your mobile.</span></p>
+                            <p className="flex items-start gap-1 flex-1"><span className="mt-px">🚕</span><span>Driver details shared before trip.</span></p>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="mt-4 flex gap-3">
+                            <button
+                                onClick={() => {
+                                    const fileName = `booking-ticket-${bookingTicket.id?.split('-')[0]?.toUpperCase() || 'ticket'}.pdf`;
+                                    generateTicketPDF(bookingTicket, fileName);
+                                }}
+                                className="flex-1 bg-primary hover:bg-[#3a5068] text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-xl cursor-pointer border-none uppercase tracking-wider text-sm flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Download Ticket
+                            </button>
+                            <button
+                                onClick={() => setBookingTicket(null)}
+                                className="flex-1 bg-dynamic-orange hover:bg-[#ff8559] text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-xl cursor-pointer border-none uppercase tracking-wider text-sm"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Hidden PDF Template Container */}
+            {bookingTicket && (
+                <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none', opacity: 0, zIndex: -1 }}>
+                    <div id="pdf-ticket-container" className="w-[400px] bg-[#2D3E50] text-[#ffffff] p-0 relative" style={{ fontFamily: 'sans-serif' }}>
+                        <div className="bg-[#FF6B35] p-4 text-center">
+                            <h2 className="text-xl font-bold text-[#ffffff] mb-1">BOOKING CONFIRMED</h2>
+                            <p className="text-xs text-[rgba(255,255,255,0.9)]">Your ride has been successfully booked</p>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div className="border-b border-[rgba(255,255,255,0.2)] border-dashed pb-4 mb-4" />
+
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Booking ID</span>
+                                    <span className="font-bold">{bookingTicket.id?.split('-')[0]?.toUpperCase() || 'N/A'}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Trip Type</span>
+                                    <span className="font-bold capitalize">{bookingTicket.trip_type?.replace('-', ' ')}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Car Model</span>
+                                    <span className="font-bold">{bookingTicket.car_model}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Contact</span>
+                                    <span className="font-bold">{bookingTicket.contact}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Date & Time</span>
+                                    <span className="font-bold">{bookingTicket.pickup_date} {bookingTicket.pickup_time ? `| ${bookingTicket.pickup_time}` : ''}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Distance</span>
+                                    <span className="font-bold">{bookingTicket.distance_km} km</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-4">
+                                <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">From</span>
+                                <span className="font-bold block leading-relaxed">{bookingTicket.pickup_location}</span>
+                            </div>
+                            <div className="mt-2">
+                                <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">To</span>
+                                <span className="font-bold block leading-relaxed">{bookingTicket.drop_location}</span>
+                            </div>
+
+                            <div className="mt-4">
+                                <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Toll Allowance</span>
+                                <span className="font-bold">As per actuals (paid by passenger)</span>
+                            </div>
+
+                            <div className="mt-6 bg-[#FF6B35] rounded-lg p-4 flex justify-between items-center">
+                                <span className="font-bold text-[#ffffff] text-sm">TOTAL RATE</span>
+                                <span className="font-black text-[#ffffff] text-xl">₹{bookingTicket.total_rate?.toLocaleString() || '0'}</span>
+                            </div>
+
+                            <div className="mt-8 text-center space-y-1">
+                                <p className="text-[9px] text-[#9ca3af]">Extra km charges apply. Toll charges as per actuals.</p>
+                                <p className="text-[9px] text-[#9ca3af]">Driver details will be shared before trip.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };

@@ -12,17 +12,16 @@ export interface VehicleData {
   name: string;
   brand: string;
   price: number;
-  priceLabel: string;
+  price_label: string;
   year: number;
   km: string;
   fuel: string;
   tag: string;
   location: string;
   seller: string;
+  contact: string;
   posted: string;
-  image: string;
-  // optional extra images — if not provided we derive variations
-  images?: string[];
+  images: string[];
 }
 
 interface VehicleDetailModalProps {
@@ -64,14 +63,8 @@ export default function VehicleDetailModal({
   const [isClosing, setIsClosing] = useState(false);
   const c = accent[accentColor];
 
-  // Build image list (3 variants from the single Unsplash URL)
-  const images: string[] = vehicle
-    ? vehicle.images ?? [
-        vehicle.image,
-        vehicle.image.replace('w=700', 'w=700&crop=entropy'),
-        vehicle.image.replace('w=700', 'w=800&crop=faces'),
-      ]
-    : [];
+  // Build image list
+  const images: string[] = vehicle ? vehicle.images : [];
 
   // Animate in
   useEffect(() => {
@@ -246,7 +239,7 @@ export default function VehicleDetailModal({
               </div>
             </div>
             <div className="text-right shrink-0">
-              <p className={`text-2xl font-black ${c.text}`}>{vehicle.priceLabel}</p>
+              <p className={`text-2xl font-black ${c.text}`}>{vehicle.price_label}</p>
               <p className="text-slate-500 text-xs mt-0.5">Negotiable</p>
             </div>
           </div>
@@ -300,12 +293,13 @@ export default function VehicleDetailModal({
             <ArrowUpRight size={17} strokeWidth={2} />
             View Full Details
           </button>
-          <button
-            className={`flex-1 py-3.5 rounded-xl bg-gradient-to-r ${c.btn} text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-lg`}
+          <a
+            href={`tel:${vehicle.contact}`}
+            className={`flex-1 py-3.5 rounded-xl bg-gradient-to-r ${c.btn} text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-lg no-underline`}
           >
             <Phone size={17} strokeWidth={2} />
-            Contact Seller
-          </button>
+            Contact {vehicle.seller}
+          </a>
         </div>
       </div>
     </div>
