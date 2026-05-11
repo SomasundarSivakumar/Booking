@@ -78,9 +78,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Fire off the SMS notification (runs asynchronously)
+    // Fire off the SMS notification (waits to finish so Vercel doesn't kill it)
     if (data.contact) {
-      sendBookingSMS(data);
+      await sendBookingSMS(data);
     }
 
     return NextResponse.json(data, { status: 201 });
