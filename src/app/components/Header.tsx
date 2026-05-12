@@ -82,7 +82,10 @@ export const Header = () => {
                         <span className="text-[0.6rem] uppercase font-bold tracking-widest">Need Help?</span>
                         <span className="text-sm font-bold text-white">+91 98765 43210</span>
                     </div>
-                    <button className="hidden md:block bg-dynamic-orange hover:bg-amber-accent text-white px-8 py-3 rounded-full text-sm font-black uppercase tracking-tighter transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-dynamic-orange/20 border border-white/10">
+                    <button
+                        onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="hidden cursor-pointer md:block bg-dynamic-orange hover:bg-amber-accent text-white px-8 py-3 rounded-full text-sm font-black uppercase tracking-tighter transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-dynamic-orange/20 border border-white/10"
+                    >
                         Book Now
                     </button>
 

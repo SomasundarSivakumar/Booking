@@ -29,6 +29,7 @@ export const Booking = () => {
     const [contact, setContact] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [carOptions, setCarOptions] = useState<any[]>(DEFAULT_CAR_OPTIONS);
 
@@ -134,13 +135,47 @@ export const Booking = () => {
         }
     }, [bookingTicket, generateTicketPDF]);
 
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
+
+        if (!customerName.trim()) {
+            newErrors.customerName = 'Name is required';
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!customerEmail.trim()) {
+            newErrors.customerEmail = 'Email is required';
+        } else if (!emailRegex.test(customerEmail)) {
+            newErrors.customerEmail = 'Please enter a valid email address';
+        }
+
+        const phoneRegex = /^[6-9]\d{9}$/;
+        if (!contact.trim()) {
+            newErrors.contact = 'Phone number is required';
+        } else if (!phoneRegex.test(contact)) {
+            newErrors.contact = 'Please enter a valid 10-digit Indian phone number';
+        }
+
+        if (!pickupLocation) newErrors.pickupLocation = 'Required';
+        if (!dropLocation) newErrors.dropLocation = 'Required';
+        if (!pickupDate) newErrors.pickupDate = 'Required';
+        if (!selectedCar) newErrors.selectedCar = 'Required';
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleBooking = async () => {
-        if (!pickupLocation || !dropLocation || !pickupDate || !selectedCar || !contact || !customerName || !customerEmail) {
-            alert('Please fill out all required fields (Locations, Date, Car Model, Name, Email, Contact Number).');
+        if (!validateForm()) {
             return;
         }
 
         setIsSubmitting(true);
+        if (!selectedCar || !pickupLocation || !dropLocation || !pickupDate) {
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
             const payload = {
                 trip_type: tripType,
@@ -234,19 +269,37 @@ export const Booking = () => {
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">From</label>
                                     <LocationAsyncSelect
                                         selected={pickupLocation}
-                                        onChange={setPickupLocation}
+                                        onChange={val => {
+                                            setPickupLocation(val);
+                                            if (errors.pickupLocation) setErrors(prev => {
+                                                const n = { ...prev };
+                                                delete n.pickupLocation;
+                                                return n;
+                                            });
+                                        }}
                                         placeholder="Select pickup location"
                                         searchPlaceholder="Search cities, towns, villages..."
+                                        error={!!errors.pickupLocation}
                                     />
+                                    {errors.pickupLocation && <p className="text-red-500 text-[10px] mt-1">{errors.pickupLocation}</p>}
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">To</label>
                                     <LocationAsyncSelect
                                         selected={dropLocation}
-                                        onChange={setDropLocation}
+                                        onChange={val => {
+                                            setDropLocation(val);
+                                            if (errors.dropLocation) setErrors(prev => {
+                                                const n = { ...prev };
+                                                delete n.dropLocation;
+                                                return n;
+                                            });
+                                        }}
                                         placeholder="Select drop location"
                                         searchPlaceholder="Search cities, towns, villages..."
+                                        error={!!errors.dropLocation}
                                     />
+                                    {errors.dropLocation && <p className="text-red-500 text-[10px] mt-1">{errors.dropLocation}</p>}
                                 </div>
 
                                 {/* Date(s) */}
@@ -254,12 +307,20 @@ export const Booking = () => {
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Pickup Date</label>
                                     <DatePicker
                                         selected={pickupDate}
-                                        onChange={(date: Date | null) => setPickupDate(date)}
+                                        onChange={(date: Date | null) => {
+                                            setPickupDate(date);
+                                            if (errors.pickupDate) setErrors(prev => {
+                                                const n = { ...prev };
+                                                delete n.pickupDate;
+                                                return n;
+                                            });
+                                        }}
                                         minDate={new Date()}
                                         placeholderText="Select pickup date"
-                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
+                                        className={`w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border ${errors.pickupDate ? 'border-red-500' : 'border-[#ffffff1a]'} focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors`}
                                         dateFormat="dd/MM/yyyy"
                                     />
+                                    {errors.pickupDate && <p className="text-red-500 text-[10px] mt-1">{errors.pickupDate}</p>}
                                 </div>
 
                                 {tripType === 'round-trip' && (
@@ -296,21 +357,38 @@ export const Booking = () => {
                                     <SearchSelect
                                         options={carOptions}
                                         selected={selectedCar}
-                                        onChange={setSelectedCar}
+                                        onChange={val => {
+                                            setSelectedCar(val);
+                                            if (errors.selectedCar) setErrors(prev => {
+                                                const n = { ...prev };
+                                                delete n.selectedCar;
+                                                return n;
+                                            });
+                                        }}
                                         placeholder="Search and choose your preferred car..."
                                         searchPlaceholder="Search cars..."
                                         emptyMessage="No cars matched your search."
+                                        error={!!errors.selectedCar}
                                     />
+                                    {errors.selectedCar && <p className="text-red-500 text-[10px] mt-1">{errors.selectedCar}</p>}
                                 </div>
                                 <div className="space-y-1 md:col-span-1 mt-0 md:mt-2">
-                                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Customer Name</label>
+                                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Name</label>
                                     <input
                                         type="text"
                                         placeholder="Enter your name"
                                         value={customerName}
-                                        onChange={e => setCustomerName(e.target.value)}
-                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
+                                        onChange={e => {
+                                            setCustomerName(e.target.value);
+                                            if (errors.customerName) setErrors(prev => {
+                                                const n = { ...prev };
+                                                delete n.customerName;
+                                                return n;
+                                            });
+                                        }}
+                                        className={`w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border ${errors.customerName ? 'border-red-500' : 'border-[#ffffff1a]'} focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]`}
                                     />
+                                    {errors.customerName && <p className="text-red-500 text-[10px] mt-1">{errors.customerName}</p>}
                                 </div>
                                 <div className="space-y-1 md:col-span-1 mt-0 md:mt-2">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Email Address</label>
@@ -318,9 +396,17 @@ export const Booking = () => {
                                         type="email"
                                         placeholder="Enter your email"
                                         value={customerEmail}
-                                        onChange={e => setCustomerEmail(e.target.value)}
-                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
+                                        onChange={e => {
+                                            setCustomerEmail(e.target.value);
+                                            if (errors.customerEmail) setErrors(prev => {
+                                                const n = { ...prev };
+                                                delete n.customerEmail;
+                                                return n;
+                                            });
+                                        }}
+                                        className={`w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border ${errors.customerEmail ? 'border-red-500' : 'border-[#ffffff1a]'} focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]`}
                                     />
+                                    {errors.customerEmail && <p className="text-red-500 text-[10px] mt-1">{errors.customerEmail}</p>}
                                 </div>
                                 <div className="space-y-1 md:col-span-1 mt-0 md:mt-2">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Contact Number</label>
@@ -328,9 +414,17 @@ export const Booking = () => {
                                         type="tel"
                                         placeholder="Enter your phone number"
                                         value={contact}
-                                        onChange={e => setContact(e.target.value)}
-                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
+                                        onChange={e => {
+                                            setContact(e.target.value);
+                                            if (errors.contact) setErrors(prev => {
+                                                const n = { ...prev };
+                                                delete n.contact;
+                                                return n;
+                                            });
+                                        }}
+                                        className={`w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border ${errors.contact ? 'border-red-500' : 'border-[#ffffff1a]'} focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]`}
                                     />
+                                    {errors.contact && <p className="text-red-500 text-[10px] mt-1">{errors.contact}</p>}
                                 </div>
                             </div>
 
@@ -465,8 +559,8 @@ export const Booking = () => {
                         {/* Notes */}
                         <div className="mt-3 flex gap-3 text-[10px] text-gray-500">
                             <p className="flex items-start gap-1 flex-1"><span className="mt-px">⚠️</span><span>Extra km charges apply beyond estimated route.</span></p>
-                            <p className="flex items-start gap-1 flex-1"><span className="mt-px">💬</span><span>Confirmation sent to your mobile.</span></p>
-                            <p className="flex items-start gap-1 flex-1"><span className="mt-px">🚕</span><span>Driver details shared before trip.</span></p>
+                            {/* <p className="flex items-start gap-1 flex-1"><span className="mt-px">💬</span><span>Confirmation sent to your mobile.</span></p>
+                            <p className="flex items-start gap-1 flex-1"><span className="mt-px">🚕</span><span>Driver details shared before trip.</span></p> */}
                         </div>
 
                         {/* Action Buttons */}
@@ -510,7 +604,7 @@ export const Booking = () => {
                                     <span className="font-bold">{bookingTicket.id?.split('-')[0]?.toUpperCase() || 'N/A'}</span>
                                 </div>
                                 <div>
-                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Customer Name</span>
+                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Name</span>
                                     <span className="font-bold">{bookingTicket.customer_name || 'N/A'}</span>
                                 </div>
                                 <div>

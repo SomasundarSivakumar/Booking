@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     seller: body.seller || '',
     contact: body.contact || '',
     images: Array.isArray(body.images) ? body.images : [],
+    rate_per_km: Number(body.rate_per_km) || 0,
   };
 
   const { data, error } = await supabase

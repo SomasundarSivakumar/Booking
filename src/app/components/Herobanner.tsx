@@ -1,3 +1,4 @@
+'use client';
 export const HeroBanner = () => {
     return (
         <section id="home" className="relative h-screen w-full bg-[url('/assets/images/hero_banner.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center">
@@ -15,7 +16,10 @@ export const HeroBanner = () => {
                 </p>
 
                 {/* <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto text-center justify-center">
-                    <button className="bg-dynamic-orange hover:bg-amber-accent px-10 py-4 rounded-md font-sans text-white font-bold text-lg transition-all hover:-translate-y-1 hover:shadow-xl duration-300">
+                    <button
+                        onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="bg-dynamic-orange hover:bg-amber-accent px-10 py-4 rounded-md font-sans text-white font-bold text-lg transition-all hover:-translate-y-1 hover:shadow-xl duration-300 cursor-pointer border-none"
+                    >
                         BOOK NOW
                     </button>
                     <button className="bg-primary hover:bg-steel-blue px-10 py-4 rounded-md font-sans text-white font-bold text-lg transition-all hover:-translate-y-1 hover:shadow-xl duration-300 border border-steel-blue/50">

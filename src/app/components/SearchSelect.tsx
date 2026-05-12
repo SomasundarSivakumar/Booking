@@ -10,6 +10,7 @@ interface SearchSelectProps {
     placeholder?: string;
     searchPlaceholder?: string;
     emptyMessage?: string;
+    error?: boolean;
 }
 
 export const SearchSelect = ({
@@ -18,7 +19,8 @@ export const SearchSelect = ({
     onChange,
     placeholder = "Select an option",
     searchPlaceholder = "Search...",
-    emptyMessage = "No matches found."
+    emptyMessage = "No matches found.",
+    error
 }: SearchSelectProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -61,7 +63,7 @@ export const SearchSelect = ({
         <div className="relative w-full" ref={wrapperRef}>
             {/* Main Select Button */}
             <div
-                className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none hover:border-dynamic-orange text-white cursor-pointer flex justify-between items-center transition-colors"
+                className={`w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border ${error ? 'border-red-500' : 'border-[#ffffff1a]'} focus:bg-[#ffffff15] outline-none hover:border-dynamic-orange text-white cursor-pointer flex justify-between items-center transition-colors`}
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <span className={selected ? 'text-white truncate pr-2' : 'text-gray-500'}>

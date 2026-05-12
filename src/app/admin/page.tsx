@@ -246,8 +246,8 @@ function VehicleFormModal({
 
   const set = (key: keyof FormState, val: string) => setForm(f => ({ ...f, [key]: val }));
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent | React.MouseEvent) => {
+    e?.preventDefault();
     setError('');
     setSaving(true);
     const images = Array.isArray(form.images) ? form.images : [];
@@ -414,7 +414,7 @@ function VehicleFormModal({
             Cancel
           </button>
           <button
-            onClick={handleSubmit as unknown as React.MouseEventHandler}
+            onClick={handleSubmit}
             disabled={saving}
             className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-dynamic-orange to-amber-500 text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer border-none disabled:opacity-50"
           >
@@ -525,8 +525,8 @@ function BookingEditModal({ booking, onClose, onSaved }: { booking: Booking; onC
 
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent | React.MouseEvent) => {
+    e?.preventDefault();
     setSaving(true);
     setError('');
     try {
@@ -603,7 +603,11 @@ function BookingEditModal({ booking, onClose, onSaved }: { booking: Booking; onC
 
         <div className="p-6 border-t border-white/[0.07] flex gap-3">
           <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-white/10 text-slate-400 font-bold cursor-pointer bg-transparent text-sm">Cancel</button>
-          <button disabled={saving} className="flex-1 py-2.5 rounded-xl bg-dynamic-orange text-white font-bold cursor-pointer border-none flex items-center justify-center gap-2 text-sm">
+          <button
+            onClick={handleSubmit}
+            disabled={saving}
+            className="flex-1 py-2.5 rounded-xl bg-dynamic-orange text-white font-bold cursor-pointer border-none flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+          >
             {saving ? <RefreshCw size={16} className="animate-spin" /> : <Check size={16} />} Save
           </button>
         </div>

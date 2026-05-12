@@ -8,13 +8,15 @@ interface LocationAsyncSelectProps {
     onChange: (option: Option) => void;
     placeholder?: string;
     searchPlaceholder?: string;
+    error?: boolean;
 }
 
 export const LocationAsyncSelect = ({
     selected,
     onChange,
     placeholder = "Select a location",
-    searchPlaceholder = "Search cities, towns, villages..."
+    searchPlaceholder = "Search cities, towns, villages...",
+    error
 }: LocationAsyncSelectProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -85,7 +87,7 @@ export const LocationAsyncSelect = ({
     return (
         <div className="relative w-full" ref={wrapperRef}>
             <div
-                className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none hover:border-dynamic-orange text-white cursor-pointer flex justify-between items-center transition-colors"
+                className={`w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border ${error ? 'border-red-500' : 'border-[#ffffff1a]'} focus:bg-[#ffffff15] outline-none hover:border-dynamic-orange text-white cursor-pointer flex justify-between items-center transition-colors`}
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <span className={selected ? 'text-white truncate pr-2' : 'text-gray-500'}>
