@@ -9,6 +9,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export type VehicleType = 'car' | 'bike';
 
 export interface Vehicle {
+  rate_per_km: string;
   id: string | number;
   type: VehicleType;
   name: string;
@@ -61,4 +62,12 @@ export function relativeTime(iso: string): string {
   if (days < 7) return `${days} days ago`;
   const weeks = Math.floor(days / 7);
   return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+}
+
+export interface CarRate {
+  id: string;
+  label: string;
+  value: string;
+  rate: number;
+  created_at?: string;
 }

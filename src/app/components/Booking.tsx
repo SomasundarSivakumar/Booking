@@ -7,7 +7,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import jsPDF from 'jspdf';
 
-const CAR_OPTIONS = [
+const DEFAULT_CAR_OPTIONS = [
     { label: 'Swift Dzire (Sedan) - ₹11/km', value: 'swift_dzire', rate: 11 },
     { label: 'Ertiga (MPV) - ₹18/km', value: 'ertiga', rate: 18 },
     { label: 'Toyota Etios (Sedan) - ₹13/km', value: 'etios', rate: 13 },
@@ -30,6 +30,28 @@ export const Booking = () => {
     const [customerName, setCustomerName] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [carOptions, setCarOptions] = useState<any[]>(DEFAULT_CAR_OPTIONS);
+
+    useEffect(() => {
+        const fetchRates = async () => {
+            try {
+                const res = await fetch('/api/car-rates');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.length > 0) {
+                        setCarOptions(data.map((r: any) => ({
+                            label: `${r.label} - ₹${r.rate}/km`,
+                            value: r.value,
+                            rate: r.rate
+                        })));
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch rates:", err);
+            }
+        };
+        fetchRates();
+    }, []);
 
     useEffect(() => {
         if (pickupLocation && dropLocation) {
@@ -69,7 +91,7 @@ export const Booking = () => {
     if (distanceKm !== null) {
         computedDistance = tripType === 'round-trip' ? distanceKm * 2 : distanceKm;
         if (selectedCar) {
-            const carDetails = CAR_OPTIONS.find(c => c.value === selectedCar.value);
+            const carDetails = carOptions.find(c => c.value === selectedCar.value);
             if (carDetails) {
                 totalRate = computedDistance * carDetails.rate;
             }
@@ -272,7 +294,7 @@ export const Booking = () => {
                                 <div className="space-y-1 md:col-span-1 mt-0 md:mt-2">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Select Car Model</label>
                                     <SearchSelect
-                                        options={CAR_OPTIONS}
+                                        options={carOptions}
                                         selected={selectedCar}
                                         onChange={setSelectedCar}
                                         placeholder="Search and choose your preferred car..."
