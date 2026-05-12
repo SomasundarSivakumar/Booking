@@ -286,7 +286,7 @@ export const Booking = () => {
                                         timeCaption="Time"
                                         dateFormat="h:mm aa"
                                         placeholderText="Select time"
-                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
+                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
                                     />
                                 </div>
 

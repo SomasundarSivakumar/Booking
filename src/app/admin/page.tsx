@@ -576,13 +576,13 @@ function BookingEditModal({ booking, onClose, onSaved }: { booking: Booking; onC
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Field label="Pickup Date">
-              <input required type="date" className={inputCls} value={form.pickup_date} onChange={e => set('pickup_date', e.target.value)} />
+              <input required type="date" min={new Date().toISOString().split('T')[0]} className={inputCls} value={form.pickup_date} onChange={e => set('pickup_date', e.target.value)} />
             </Field>
             <Field label="Return Date">
-              <input type="date" className={inputCls} value={form.return_date || ''} onChange={e => set('return_date', e.target.value)} />
+              <input type="date" min={form.pickup_date || new Date().toISOString().split('T')[0]} className={inputCls} value={form.return_date || ''} onChange={e => set('return_date', e.target.value)} />
             </Field>
             <Field label="Pickup Time">
-              <input className={inputCls} value={form.pickup_time} onChange={e => set('pickup_time', e.target.value)} />
+              <input type="time" className={inputCls} value={form.pickup_time} onChange={e => set('pickup_time', e.target.value)} />
             </Field>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
