@@ -17,7 +17,7 @@ const DEFAULT_CAR_OPTIONS = [
 ];
 
 export const Booking = () => {
-    const [tripType, setTripType] = useState<'one-way' | 'round-trip'>('one-way');
+    const [tripType, setTripType] = useState<'one-way' | 'round-trip'>('round-trip');
     const [selectedCar, setSelectedCar] = useState<Option | null>(null);
     const [pickupLocation, setPickupLocation] = useState<Option | null>(null);
     const [dropLocation, setDropLocation] = useState<Option | null>(null);
@@ -214,7 +214,7 @@ export const Booking = () => {
                 setPickupDate(null);
                 setReturnDate(null);
                 setPickupTime(null);
-                setTripType('one-way');
+                setTripType('round-trip');
             } else {
                 const data = await res.json();
                 alert('Error placing booking: ' + (data.error || 'Unknown error'));
@@ -237,28 +237,12 @@ export const Booking = () => {
                 <div className="relative md:absolute top-0 md:top-[-10rem] md:translate-x-1/2 md:right-1/2 w-[95%] lg:w-[60%] mx-auto rounded-md lg:rounded-2xl bg-primary shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10">
                     <div className="px-5 lg:px-10 py-5 lg:py-8 text-white flex flex-col lg:gap-6 gap-2">
 
-                        {/* Tabs */}
+                        {/* Tabs — Only Round Trip */}
                         <div className="flex space-x-8 border-b border-white/20">
-                            <button
-                                onClick={() => setTripType('one-way')}
-                                className={`pb-4 text-sm font-bold tracking-wider transition-all relative ${tripType === 'one-way' ? 'text-white' : 'text-gray-400 hover:text-gray-200'
-                                    }`}
-                            >
-                                ONE WAY
-                                {tripType === 'one-way' && (
-                                    <div className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-dynamic-orange" />
-                                )}
-                            </button>
-                            <button
-                                onClick={() => setTripType('round-trip')}
-                                className={`pb-4 text-sm font-bold tracking-wider transition-all relative ${tripType === 'round-trip' ? 'text-white' : 'text-gray-400 hover:text-gray-200'
-                                    }`}
-                            >
+                            <div className="pb-4 text-sm font-bold tracking-wider text-white relative">
                                 ROUND TRIP
-                                {tripType === 'round-trip' && (
-                                    <div className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-dynamic-orange" />
-                                )}
-                            </button>
+                                <div className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-dynamic-orange" />
+                            </div>
                         </div>
 
                         {/* Form Area */}
