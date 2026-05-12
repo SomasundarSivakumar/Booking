@@ -6,13 +6,14 @@ import {
   ChevronDown, ImageIcon, MapPin, Fuel, Tag, Wallet,
   CalendarDays, Gauge, User, AlertTriangle, RefreshCw,
   LayoutDashboard, LogOut, Eye, Bookmark, Clock3, Navigation, Phone,
-  Upload, XCircle,
+  Upload, XCircle, CheckCircle2, Circle, Filter,
 } from 'lucide-react';
 import type { Vehicle, Booking } from '@/lib/supabase';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type ViewMode = 'vehicles' | 'bookings';
 type Tab = 'all' | 'car' | 'bike';
+type BookingFilter = 'all' | 'finished' | 'unfinished';
 
 const FUELS = ['Petrol', 'Diesel', 'Electric', 'CNG', 'Hybrid'];
 const TAGS = ['Best Deal', 'Low Mileage', 'Like New', 'Popular', 'Verified', 'Premium', 'Top Pick', 'Family Pick', 'Sports', 'Racing'];
@@ -438,12 +439,18 @@ function DeleteModal({ title, message, onConfirm, onCancel, loading }: { title: 
 
 // ─── Main Admin Page ──────────────────────────────────────────────────────────
 export default function AdminPage() {
-  const [view, setView] = useState<ViewMode>('vehicles');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authPassword, setAuthPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  
+  const [view, setView] = useState<ViewMode>('bookings');
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('all');
   const [search, setSearch] = useState('');
+  const [bookingFilter, setBookingFilter] = useState<BookingFilter>('all');
 
   // Vehicles State
   const [showForm, setShowForm] = useState(false);
@@ -453,6 +460,45 @@ export default function AdminPage() {
   const [deleteVehicleTarget, setDeleteVehicleTarget] = useState<Vehicle | null>(null);
   const [deleteBookingTarget, setDeleteBookingTarget] = useState<Booking | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [viewBooking, setViewBooking] = useState<Booking | null>(null);
+  const [allBookings, setAllBookings] = useState<Booking[]>([]); // for counts
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (sessionStorage.getItem('admin_auth') === 'true') {
+        setIsAuthenticated(true);
+      }
+    }
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAuthenticating(true);
+    setAuthError('');
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: authPassword })
+      });
+      if (res.ok) {
+        sessionStorage.setItem('admin_auth', 'true');
+        setIsAuthenticated(true);
+      } else {
+        setAuthError('Incorrect Password');
+      }
+    } catch {
+      setAuthError('Connection Error');
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_auth');
+    setIsAuthenticated(false);
+    setAuthPassword('');
+  };
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -462,7 +508,13 @@ export default function AdminPage() {
         const data = await res.json();
         setVehicles(Array.isArray(data) ? data : []);
       } else {
-        const res = await fetch('/api/bookings');
+        // Build query params for API-based filtering
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (bookingFilter === 'finished') params.set('finished', 'true');
+        else if (bookingFilter === 'unfinished') params.set('finished', 'false');
+
+        const res = await fetch(`/api/bookings?${params.toString()}`);
         const data = await res.json();
         setBookings(Array.isArray(data) ? data : []);
       }
@@ -472,9 +524,28 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
-  }, [view]);
+  }, [view, search, bookingFilter]);
+
+  // Fetch all bookings (unfiltered) for accurate counts
+  const fetchCounts = useCallback(async () => {
+    try {
+      const res = await fetch('/api/bookings');
+      const data = await res.json();
+      setAllBookings(Array.isArray(data) ? data : []);
+    } catch {
+      setAllBookings([]);
+    }
+  }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchCounts(); }, [fetchCounts]);
+
+  // Debounce search to avoid firing API on every keystroke
+  const [searchInput, setSearchInput] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(searchInput), 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const displayedVehicles = vehicles.filter(v => {
     const vType = (v.type || '').toLowerCase();
@@ -486,14 +557,36 @@ export default function AdminPage() {
     return matchTab && matchSearch;
   });
 
-  const displayedBookings = bookings.filter(b => {
-    const matchSearch = !search ||
-      b.contact?.toLowerCase().includes(search.toLowerCase()) ||
-      b.pickup_location?.toLowerCase().includes(search.toLowerCase()) ||
-      b.drop_location?.toLowerCase().includes(search.toLowerCase()) ||
-      b.car_model?.toLowerCase().includes(search.toLowerCase());
-    return matchSearch;
-  });
+  // Bookings are already filtered by the API — use directly
+  const displayedBookings = bookings;
+
+  const bookingCounts = {
+    all: allBookings.length,
+    finished: allBookings.filter(b => b.finished).length,
+    unfinished: allBookings.filter(b => !b.finished).length,
+  };
+
+  const toggleFinished = async (booking: Booking) => {
+    const newVal = !booking.finished;
+    // Optimistic update
+    setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, finished: newVal } : b));
+    setAllBookings(prev => prev.map(b => b.id === booking.id ? { ...b, finished: newVal } : b));
+    try {
+      const res = await fetch(`/api/bookings/${booking.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ finished: newVal }),
+      });
+      if (!res.ok) {
+        // Revert on failure
+        setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, finished: !newVal } : b));
+        setAllBookings(prev => prev.map(b => b.id === booking.id ? { ...b, finished: !newVal } : b));
+      }
+    } catch {
+      setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, finished: !newVal } : b));
+      setAllBookings(prev => prev.map(b => b.id === booking.id ? { ...b, finished: !newVal } : b));
+    }
+  };
 
   const counts = {
     all: vehicles.length,
@@ -525,9 +618,45 @@ export default function AdminPage() {
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#0B1320] flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[#162030] border border-white/[0.08] rounded-2xl shadow-2xl p-8 animate-in fade-in zoom-in-95 duration-300">
+          <div className="flex flex-col items-center gap-3 mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-dynamic-orange/10 flex items-center justify-center border border-dynamic-orange/20">
+              <svg className="w-7 h-7 text-dynamic-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <h1 className="text-white font-bold text-2xl tracking-wide">Admin Access</h1>
+            <p className="text-slate-500 text-sm">Please enter the security password.</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <input
+                type="password"
+                placeholder="Enter Password..."
+                value={authPassword}
+                onChange={e => setAuthPassword(e.target.value)}
+                className="w-full bg-[#0B1320] border border-white/[0.08] rounded-xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-dynamic-orange transition-colors font-medium tracking-widest text-center"
+                autoFocus
+              />
+            </div>
+            {authError && <p className="text-red-400 text-xs font-bold text-center animate-pulse">{authError}</p>}
+            <button
+              type="submit"
+              disabled={isAuthenticating || !authPassword}
+              className="w-full bg-dynamic-orange hover:bg-[#ff8559] disabled:bg-dynamic-orange/50 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg border-none cursor-pointer tracking-wider text-sm flex items-center justify-center gap-2"
+            >
+              {isAuthenticating ? <RefreshCw size={18} className="animate-spin" /> : 'UNLOCK DASHBOARD'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0f1923] text-slate-200 font-heading pb-20">
-
       {/* Top Bar */}
       <header className="bg-[#162030] border-b border-white/[0.07] px-8 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-4">
@@ -537,6 +666,7 @@ export default function AdminPage() {
             </div>
             <span className="text-white font-black text-lg">Prakash Travels Admin</span>
           </div>
+          {/* Vehicle/Booking toggle - commented out to show only bookings
           <div className="hidden sm:flex gap-2 bg-[#0f1923] p-1 rounded-xl border border-white/5 ml-4">
             <button
               onClick={() => { setView('vehicles'); setSearch(''); }}
@@ -551,34 +681,44 @@ export default function AdminPage() {
               <Bookmark size={14} /> Bookings
             </button>
           </div>
+          */}
         </div>
         <div className="flex items-center gap-3">
           <a href="/" className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.07] text-slate-400 hover:text-white text-sm font-medium transition-colors">
             <Eye size={14} /> View Site
           </a>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300 text-sm font-medium transition-colors cursor-pointer"
+          >
+            <LogOut size={14} /> Logout
+          </button>
         </div>
       </header>
 
       <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-6">
 
         {/* Stats */}
-        {view === 'vehicles' ? (
+        {/* Vehicle stats - commented out to show only bookings
+        {view === 'vehicles' && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard icon={<LayoutDashboard size={20} className="text-slate-400" />} label="Total Listings" value={counts.all} color="bg-white/5" />
             <StatCard icon={<Car size={20} className="text-dynamic-orange" />} label="Cars" value={counts.car} color="bg-dynamic-orange/10" />
             <StatCard icon={<Bike size={20} className="text-steel-blue" />} label="Bikes" value={counts.bike} color="bg-steel-blue/10" />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard icon={<Bookmark size={20} className="text-dynamic-orange" />} label="Total Bookings" value={bookings.length} color="bg-dynamic-orange/10" />
+        )}
+        */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <StatCard icon={<Bookmark size={20} className="text-dynamic-orange" />} label="Total Bookings" value={bookingCounts.all} color="bg-dynamic-orange/10" />
+            <StatCard icon={<CheckCircle2 size={20} className="text-green-400" />} label="Finished" value={bookingCounts.finished} color="bg-green-500/10" />
+            <StatCard icon={<Circle size={20} className="text-red-400" />} label="Unfinished" value={bookingCounts.unfinished} color="bg-red-500/10" />
             <StatCard icon={<Navigation size={20} className="text-steel-blue" />} label="One Way" value={bookings.filter(b => b.trip_type === 'one-way').length} color="bg-steel-blue/10" />
             <StatCard icon={<RefreshCw size={20} className="text-purple-400" />} label="Round Trip" value={bookings.filter(b => b.trip_type === 'round-trip').length} color="bg-purple-500/10" />
           </div>
-        )}
 
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Tabs for Vehicles Only */}
+          {/* Tabs for Vehicles Only - commented out to show only bookings
           {view === 'vehicles' && (
             <div className="flex bg-[#1e2f42] border border-white/[0.07] rounded-xl p-1 gap-1">
               {(['all', 'car', 'bike'] as Tab[]).map(t => (
@@ -598,24 +738,49 @@ export default function AdminPage() {
               ))}
             </div>
           )}
+          */}
+
+          {/* Booking Status Filter */}
+          <div className="flex bg-[#1e2f42] border border-white/[0.07] rounded-xl p-1 gap-1">
+            {(['all', 'finished', 'unfinished'] as BookingFilter[]).map(f => (
+              <button
+                key={f}
+                onClick={() => setBookingFilter(f)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer border-none
+                  ${bookingFilter === f
+                    ? f === 'finished' ? 'bg-green-500 text-white shadow-sm'
+                    : f === 'unfinished' ? 'bg-red-500 text-white shadow-sm'
+                    : 'bg-dynamic-orange text-white shadow-sm'
+                    : 'bg-transparent text-slate-400 hover:text-white'}`}
+              >
+                {f === 'finished' && <CheckCircle2 size={13} />}
+                {f === 'unfinished' && <Circle size={13} />}
+                {f === 'all' && <Filter size={13} />}
+                {f === 'all' ? 'All' : f === 'finished' ? 'Finished' : 'Unfinished'}
+                <span className={`text-[0.65rem] px-1.5 py-0.5 rounded-full font-black ${bookingFilter === f ? 'bg-white/20' : 'bg-white/5'}`}>
+                  {bookingCounts[f]}
+                </span>
+              </button>
+            ))}
+          </div>
 
           {/* Search */}
           <div className="flex-1 flex items-center gap-2 bg-[#1e2f42] border border-white/[0.07] rounded-xl px-3 py-2 min-w-[200px] focus-within:border-dynamic-orange/40 transition-colors">
             <Search size={15} className="text-slate-500 shrink-0" />
             <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
               placeholder={`Search ${view}…`}
               className="flex-1 bg-transparent border-none text-sm text-slate-200 outline-none placeholder:text-slate-600"
             />
-            {search && <button onClick={() => setSearch('')} className="bg-transparent border-none text-slate-500 hover:text-white cursor-pointer flex"><X size={13} /></button>}
+            {searchInput && <button onClick={() => { setSearchInput(''); setSearch(''); }} className="bg-transparent border-none text-slate-500 hover:text-white cursor-pointer flex"><X size={13} /></button>}
           </div>
 
           <button onClick={() => fetchData()} className="p-2.5 rounded-xl bg-white/5 border border-white/[0.07] text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
             <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
           </button>
 
-          {/* Add Button - Vehicles Only */}
+          {/* Add Button - Vehicles Only - commented out to show only bookings
           {view === 'vehicles' && (
             <button
               onClick={() => { setEditVehicle(null); setShowForm(true); }}
@@ -625,15 +790,15 @@ export default function AdminPage() {
               Add Listing
             </button>
           )}
+          */}
         </div>
 
         {/* Table Area */}
         <div className="bg-[#162030] border border-white/[0.07] rounded-2xl overflow-hidden">
 
-          {/* VEHICLES TABLE */}
-          {view === 'vehicles' && (
+          {/* VEHICLES TABLE - disabled to show only bookings */}
+          {false && view === 'vehicles' && (
             <>
-              {/* Scrollable table wrapper */}
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[1100px] border-collapse">
                   <thead>
@@ -774,7 +939,8 @@ export default function AdminPage() {
 
           {view === 'bookings' && (
             <>
-              <div className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-white/[0.07] text-[0.68rem] font-bold uppercase tracking-widest text-slate-500">
+              <div className="grid grid-cols-[auto_1.5fr_1.5fr_1fr_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-white/[0.07] text-[0.68rem] font-bold uppercase tracking-widest text-slate-500">
+                <span>Status</span>
                 <span>Trip Details</span>
                 <span>Locations</span>
                 <span>Date & Time</span>
@@ -802,17 +968,37 @@ export default function AdminPage() {
                   return (
                     <div
                       key={b.id}
-                      className={`grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-6 py-4 hover:bg-white/[0.02] transition-colors
+                      className={`grid grid-cols-[auto_1.5fr_1.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-6 py-4 hover:bg-white/[0.02] transition-colors
                         ${idx !== displayedBookings.length - 1 ? 'border-b border-white/[0.05]' : ''}`}
                     >
+                      {/* Status Toggle */}
+                      <div className="flex items-center justify-center">
+                        <button
+                          onClick={() => toggleFinished(b)}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer border
+                            ${b.finished
+                              ? 'bg-green-500/15 border-green-500/30 text-green-400 hover:bg-green-500/25'
+                              : 'bg-red-500/15 border-red-500/30 text-red-400 hover:bg-red-500/25'}`}
+                          title={b.finished ? 'Mark as Unfinished' : 'Mark as Finished'}
+                        >
+                          {b.finished ? <CheckCircle2 size={15} strokeWidth={2.5} /> : <Circle size={15} strokeWidth={2} />}
+                        </button>
+                      </div>
+
                       {/* Trip Details */}
                       <div className="flex flex-col gap-1 min-w-0">
                         <p className="text-white font-bold text-sm truncate">{b.car_model || 'Unknown Car'}</p>
-                        <span className={`inline-flex items-center gap-1 text-[0.65rem] font-bold px-2 py-0.5 rounded-full border self-start
-                          ${b.trip_type === 'round-trip' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-steel-blue/10 text-steel-blue border-steel-blue/20'}`}>
-                          {b.trip_type === 'round-trip' ? <RefreshCw size={10} /> : <Navigation size={10} />}
-                          {b.trip_type === 'round-trip' ? 'Round Trip' : 'One Way'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center gap-1 text-[0.65rem] font-bold px-2 py-0.5 rounded-full border
+                            ${b.trip_type === 'round-trip' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-steel-blue/10 text-steel-blue border-steel-blue/20'}`}>
+                            {b.trip_type === 'round-trip' ? <RefreshCw size={10} /> : <Navigation size={10} />}
+                            {b.trip_type === 'round-trip' ? 'Round Trip' : 'One Way'}
+                          </span>
+                          <span className={`text-[0.6rem] font-bold px-2 py-0.5 rounded-full border
+                            ${b.finished ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                            {b.finished ? 'Finished' : 'Unfinished'}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Locations */}
@@ -844,14 +1030,31 @@ export default function AdminPage() {
                         <span className="text-slate-500 text-xs">{b.distance_km ? `${b.distance_km} km` : 'N/A'}</span>
                       </div>
 
-                      {/* Contact */}
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-white font-semibold text-sm flex items-center gap-1"><Phone size={12} /> {b.contact || 'N/A'}</span>
-                        <span className="text-slate-500 text-[0.65rem] uppercase tracking-wider">{new Date(b.created_at).toLocaleString()}</span>
+                      {/* Contact & Created */}
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <div className="text-white font-semibold text-sm flex items-start gap-1.5 leading-tight">
+                          <User size={13} className="mt-[2px] shrink-0 text-slate-400" />
+                          <span className="truncate" title={b.customer_name || 'N/A'}>{b.customer_name || 'N/A'}</span>
+                        </div>
+                        <div className="text-slate-400 text-xs flex items-center gap-1.5">
+                          <Phone size={11} className="shrink-0 text-slate-400" />
+                          <span className="truncate">{b.contact || 'N/A'}</span>
+                        </div>
+                        <div className="text-slate-500 text-[0.65rem] flex items-center gap-1.5">
+                          <Clock3 size={10} className="shrink-0" />
+                          <span className="truncate">{new Date(b.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} {new Date(b.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
                       </div>
 
                       {/* Actions */}
                       <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => setViewBooking(b)}
+                          className="w-8 h-8 rounded-lg bg-dynamic-orange/10 border border-dynamic-orange/20 flex items-center justify-center text-dynamic-orange hover:bg-dynamic-orange/20 transition-colors cursor-pointer"
+                          title="View Details"
+                        >
+                          <Eye size={13} strokeWidth={2} />
+                        </button>
                         <button
                           onClick={() => setDeleteBookingTarget(b)}
                           className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
@@ -870,22 +1073,23 @@ export default function AdminPage() {
         </div>
 
         <p className="text-slate-600 text-xs text-right">
-          Showing {view === 'vehicles' ? displayedVehicles.length : displayedBookings.length} of {view === 'vehicles' ? vehicles.length : bookings.length} records
+          Showing {displayedBookings.length} of {bookings.length} records
         </p>
       </div>
 
       {/* Modals */}
-      {showForm && (
+      {/* Vehicle modals - disabled to show only bookings */}
+      {false && showForm && (
         <VehicleFormModal
           vehicle={editVehicle}
           onClose={() => setShowForm(false)}
           onSaved={fetchData}
         />
       )}
-      {deleteVehicleTarget && (
+      {false && deleteVehicleTarget && (
         <DeleteModal
           title="Delete Listing?"
-          message={<><span className="text-white font-semibold">{deleteVehicleTarget.name}</span> will be permanently removed.</>}
+          message={<><span className="text-white font-semibold">{deleteVehicleTarget?.name}</span> will be permanently removed.</>}
           onConfirm={handleVehicleDelete}
           onCancel={() => setDeleteVehicleTarget(null)}
           loading={deleting}
@@ -899,6 +1103,136 @@ export default function AdminPage() {
           onCancel={() => setDeleteBookingTarget(null)}
           loading={deleting}
         />
+      )}
+
+      {/* Booking Detail Modal */}
+      {viewBooking && (
+        <div className="fixed inset-0 z-[600] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setViewBooking(null)}>
+          <div onClick={e => e.stopPropagation()} className="relative w-full max-w-lg bg-[#162030] border border-white/[0.08] rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 mx-4">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.07]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-dynamic-orange/10 flex items-center justify-center">
+                  <Bookmark size={18} className="text-dynamic-orange" />
+                </div>
+                <div>
+                  <h2 className="text-white font-bold text-lg leading-tight">Booking Details</h2>
+                  <p className="text-slate-500 text-xs mt-0.5">ID: {String(viewBooking.id || '').split('-')[0]?.toUpperCase()}</p>
+                </div>
+              </div>
+              <button onClick={() => setViewBooking(null)} className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer border-none">
+                <X size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
+              {/* Trip Type Badge */}
+              <div className="flex items-center gap-3">
+                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border
+                  ${viewBooking.trip_type === 'round-trip' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-steel-blue/10 text-steel-blue border-steel-blue/20'}`}>
+                  {viewBooking.trip_type === 'round-trip' ? <RefreshCw size={12} /> : <Navigation size={12} />}
+                  {viewBooking.trip_type === 'round-trip' ? 'Round Trip' : 'One Way'}
+                </span>
+                <span className="text-slate-600 text-[0.65rem] uppercase tracking-wider">{new Date(viewBooking.created_at).toLocaleString()}</span>
+              </div>
+
+              {/* Route */}
+              <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex flex-col items-center gap-1 mt-1">
+                    <span className="w-3 h-3 rounded-full bg-green-500 border-2 border-green-500/30" />
+                    <div className="w-[2px] h-8 bg-gradient-to-b from-green-500/50 to-red-500/50 rounded-full" />
+                    <span className="w-3 h-3 rounded-full bg-red-500 border-2 border-red-500/30" />
+                  </div>
+                  <div className="flex flex-col gap-3 flex-1 min-w-0">
+                    <div>
+                      <p className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Pickup</p>
+                      <p className="text-white text-sm font-semibold leading-snug">{viewBooking.pickup_location}</p>
+                    </div>
+                    <div>
+                      <p className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Drop</p>
+                      <p className="text-white text-sm font-semibold leading-snug">{viewBooking.drop_location}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detail Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3.5">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Car size={13} className="text-dynamic-orange" />
+                    <span className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">Car Model</span>
+                  </div>
+                  <p className="text-white font-bold text-sm">{viewBooking.car_model}</p>
+                </div>
+                <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3.5 col-span-2 sm:col-span-1">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <User size={13} className="text-dynamic-orange" />
+                    <span className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">Customer Details</span>
+                  </div>
+                  <p className="text-white font-bold text-sm mb-1">{viewBooking.customer_name || 'N/A'}</p>
+                  <a href={`tel:${viewBooking.contact}`} className="text-dynamic-orange font-bold text-sm no-underline hover:underline flex items-center gap-1"><Phone size={12} /> {viewBooking.contact || 'N/A'}</a>
+                </div>
+                <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3.5">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <CalendarDays size={13} className="text-dynamic-orange" />
+                    <span className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">Pickup Date</span>
+                  </div>
+                  <p className="text-white font-bold text-sm">{new Date(viewBooking.pickup_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                </div>
+                {viewBooking.return_date && viewBooking.trip_type === 'round-trip' ? (
+                  <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3.5">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <CalendarDays size={13} className="text-purple-400" />
+                      <span className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">Return Date</span>
+                    </div>
+                    <p className="text-white font-bold text-sm">{new Date(viewBooking.return_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                  </div>
+                ) : (
+                  <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3.5">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Clock3 size={13} className="text-dynamic-orange" />
+                      <span className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">Pickup Time</span>
+                    </div>
+                    <p className="text-white font-bold text-sm">{viewBooking.pickup_time || 'Not specified'}</p>
+                  </div>
+                )}
+                <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3.5">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Navigation size={13} className="text-dynamic-orange" />
+                    <span className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">Distance</span>
+                  </div>
+                  <p className="text-white font-bold text-sm">{viewBooking.distance_km ? `${viewBooking.distance_km} km` : 'N/A'}</p>
+                </div>
+                <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3.5">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Wallet size={13} className="text-dynamic-orange" />
+                    <span className="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">Total Rate</span>
+                  </div>
+                  <p className="text-dynamic-orange font-black text-lg">{viewBooking.total_rate ? formatPrice(viewBooking.total_rate) : 'TBD'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-white/[0.07] flex gap-3">
+              <a
+                href={`tel:${viewBooking.contact}`}
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-dynamic-orange to-amber-500 text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer border-none no-underline"
+              >
+                <Phone size={15} /> Call Customer
+              </a>
+              <button
+                onClick={() => setViewBooking(null)}
+                className="flex-1 py-3 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition-colors font-semibold text-sm cursor-pointer bg-transparent"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

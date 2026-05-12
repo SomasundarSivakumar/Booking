@@ -33,12 +33,15 @@ export interface Booking {
   car_model: string;
   pickup_location: string;
   drop_location: string;
+  customer_name: string;
+  customer_email: string;
   contact: string;
   pickup_date: string;
   return_date: string | null;
   pickup_time: string | null;
   distance_km: number | null;
   total_rate: number | null;
+  finished: boolean;
   created_at: string;
 }
 

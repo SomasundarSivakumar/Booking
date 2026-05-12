@@ -27,6 +27,8 @@ export const Booking = () => {
     const [distanceKm, setDistanceKm] = useState<number | null>(null);
     const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
     const [contact, setContact] = useState('');
+    const [customerName, setCustomerName] = useState('');
+    const [customerEmail, setCustomerEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -111,8 +113,8 @@ export const Booking = () => {
     }, [bookingTicket, generateTicketPDF]);
 
     const handleBooking = async () => {
-        if (!pickupLocation || !dropLocation || !pickupDate || !selectedCar || !contact) {
-            alert('Please fill out all required fields (Locations, Date, Car Model, Contact Number).');
+        if (!pickupLocation || !dropLocation || !pickupDate || !selectedCar || !contact || !customerName || !customerEmail) {
+            alert('Please fill out all required fields (Locations, Date, Car Model, Name, Email, Contact Number).');
             return;
         }
 
@@ -123,6 +125,8 @@ export const Booking = () => {
                 car_model: selectedCar.label,
                 pickup_location: pickupLocation.label,
                 drop_location: dropLocation.label,
+                customer_name: customerName,
+                customer_email: customerEmail,
                 contact: contact,
                 pickup_date: pickupDate.toISOString().split('T')[0],
                 return_date: returnDate ? returnDate.toISOString().split('T')[0] : null,
@@ -144,6 +148,8 @@ export const Booking = () => {
 
                 // Clear form
                 setContact('');
+                setCustomerName('');
+                setCustomerEmail('');
                 setSelectedCar(null);
                 setPickupLocation(null);
                 setDropLocation(null);
@@ -274,7 +280,27 @@ export const Booking = () => {
                                         emptyMessage="No cars matched your search."
                                     />
                                 </div>
-                                <div className="space-y-1 md:col-span-1mt-o md:mt-2">
+                                <div className="space-y-1 md:col-span-1 mt-0 md:mt-2">
+                                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Customer Name</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter your name"
+                                        value={customerName}
+                                        onChange={e => setCustomerName(e.target.value)}
+                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
+                                    />
+                                </div>
+                                <div className="space-y-1 md:col-span-1 mt-0 md:mt-2">
+                                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Email Address</label>
+                                    <input
+                                        type="email"
+                                        placeholder="Enter your email"
+                                        value={customerEmail}
+                                        onChange={e => setCustomerEmail(e.target.value)}
+                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
+                                    />
+                                </div>
+                                <div className="space-y-1 md:col-span-1 mt-0 md:mt-2">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Contact Number</label>
                                     <input
                                         type="tel"
@@ -372,6 +398,10 @@ export const Booking = () => {
                                     <span className="font-medium text-gray-900 text-xs">{bookingTicket.car_model}</span>
                                 </div>
                                 <div className="grid-item-animate bg-white rounded-lg p-2.5 border border-gray-100">
+                                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Name</span>
+                                    <span className="font-medium text-gray-900 text-xs">{bookingTicket.customer_name || 'N/A'}</span>
+                                </div>
+                                <div className="grid-item-animate bg-white rounded-lg p-2.5 border border-gray-100">
                                     <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Contact</span>
                                     <span className="font-medium text-gray-900 text-xs">{bookingTicket.contact}</span>
                                 </div>
@@ -418,7 +448,7 @@ export const Booking = () => {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="mt-4 flex gap-3">
+                        {/* <div className="mt-4 flex gap-3">
                             <button
                                 onClick={() => {
                                     const fileName = `booking-ticket-${bookingTicket.id?.split('-')[0]?.toUpperCase() || 'ticket'}.pdf`;
@@ -435,7 +465,7 @@ export const Booking = () => {
                             >
                                 Close
                             </button>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             )}
@@ -456,6 +486,10 @@ export const Booking = () => {
                                 <div>
                                     <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Booking ID</span>
                                     <span className="font-bold">{bookingTicket.id?.split('-')[0]?.toUpperCase() || 'N/A'}</span>
+                                </div>
+                                <div>
+                                    <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Customer Name</span>
+                                    <span className="font-bold">{bookingTicket.customer_name || 'N/A'}</span>
                                 </div>
                                 <div>
                                     <span className="text-[10px] text-[#9ca3af] uppercase tracking-wider block mb-1">Trip Type</span>
@@ -498,10 +532,10 @@ export const Booking = () => {
                                 <span className="font-black text-[#ffffff] text-xl">₹{bookingTicket.total_rate?.toLocaleString() || '0'}</span>
                             </div>
 
-                            <div className="mt-8 text-center space-y-1">
+                            {/* <div className="mt-8 text-center space-y-1">
                                 <p className="text-[9px] text-[#9ca3af]">Extra km charges apply. Toll charges as per actuals.</p>
                                 <p className="text-[9px] text-[#9ca3af]">Driver details will be shared before trip.</p>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
