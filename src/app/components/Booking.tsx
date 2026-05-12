@@ -165,14 +165,14 @@ export const Booking = () => {
     };
 
     return (
-        <section id="booking" className="w-full relative  h-screen  flex items-center justify-center">
-            <div className='absolute top-[10%] animate-spin duration-500 left-[-9%] w-70 h-70'>
+        <section id="booking" className="w-full relative md:h-screen md:flex md:items-center md:justify-center pb-8 md:pb-0">
+            <div className='absolute top-[10%] animate-spin duration-500 left-[-9%] w-70 h-70 hidden md:block'>
                 <img src="./assets/images/Tyer_round.png" className='w-full h-full' />
             </div>
 
-            <div className="w-[80%] mx-auto">
-                <div className=" absolute top-[-10rem] translate-x-1/2 right-1/2 w-[60%] mx-auto rounded-2xl bg-primary shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10">
-                    <div className="px-10 py-8 text-white flex flex-col gap-6">
+            <div className="w-full pt-8 md:pt-0 lg:w-[80%] mx-auto">
+                <div className="relative md:absolute top-0 md:top-[-10rem] md:translate-x-1/2 md:right-1/2 w-[95%] lg:w-[60%] mx-auto rounded-md lg:rounded-2xl bg-primary shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10">
+                    <div className="px-5 lg:px-10 py-5 lg:py-8 text-white flex flex-col lg:gap-6 gap-2">
 
                         {/* Tabs */}
                         <div className="flex space-x-8 border-b border-white/20">
@@ -200,7 +200,7 @@ export const Booking = () => {
 
                         {/* Form Area */}
                         <div className="mt-2 transition-all duration-300">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                                 {/* Pickup & Drop */}
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">From</label>
@@ -229,7 +229,7 @@ export const Booking = () => {
                                         onChange={(date: Date | null) => setPickupDate(date)}
                                         minDate={new Date()}
                                         placeholderText="Select pickup date"
-                                        className="w-full p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
+                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
                                         dateFormat="dd/MM/yyyy"
                                     />
                                 </div>
@@ -242,7 +242,7 @@ export const Booking = () => {
                                             onChange={(date: Date | null) => setReturnDate(date)}
                                             minDate={pickupDate || new Date()}
                                             placeholderText="Select return date"
-                                            className="w-full p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
+                                            className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
                                             dateFormat="dd/MM/yyyy"
                                         />
                                     </div>
@@ -258,12 +258,12 @@ export const Booking = () => {
                                         timeCaption="Time"
                                         dateFormat="h:mm aa"
                                         placeholderText="Select time"
-                                        className="w-full p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
+                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors"
                                     />
                                 </div>
 
                                 {/* Car Type & Contact */}
-                                <div className="space-y-1 md:col-span-1 mt-2">
+                                <div className="space-y-1 md:col-span-1 mt-0 md:mt-2">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Select Car Model</label>
                                     <SearchSelect
                                         options={CAR_OPTIONS}
@@ -274,14 +274,14 @@ export const Booking = () => {
                                         emptyMessage="No cars matched your search."
                                     />
                                 </div>
-                                <div className="space-y-1 md:col-span-1 mt-2">
+                                <div className="space-y-1 md:col-span-1mt-o md:mt-2">
                                     <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Contact Number</label>
                                     <input
                                         type="tel"
                                         placeholder="Enter your phone number"
                                         value={contact}
                                         onChange={e => setContact(e.target.value)}
-                                        className="w-full p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
+                                        className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none focus:border-dynamic-orange text-white transition-colors h-[50px] sm:h-[56px]"
                                     />
                                 </div>
                             </div>
@@ -316,11 +316,11 @@ export const Booking = () => {
                             )}
 
                             {/* Call to Action */}
-                            <div className="mt-8">
+                            <div className="md:mt-8 mt-4">
                                 <button
                                     onClick={handleBooking}
                                     disabled={isSubmitting}
-                                    className="w-full bg-dynamic-orange hover:bg-[#ff8559] text-white font-bold text-lg py-4 rounded-lg transition-transform hover:scale-[1.02] shadow-[0_10px_20px_rgba(255,107,53,0.3)] uppercase tracking-wide disabled:opacity-50 disabled:hover:scale-100 cursor-pointer border-none"
+                                    className="w-full bg-dynamic-orange hover:bg-[#ff8559] text-white font-bold md:text-lg py-4 rounded-lg transition-transform hover:scale-[1.02] shadow-[0_10px_20px_rgba(255,107,53,0.3)] uppercase tracking-wide disabled:opacity-50 disabled:hover:scale-100 cursor-pointer border-none"
                                 >
                                     {isSubmitting ? 'Booking...' : 'Book Ride Now'}
                                 </button>
@@ -329,7 +329,7 @@ export const Booking = () => {
 
                     </div>
                 </div>
-                <div className='mt-[30rem] mx-auto w-full'>
+                <div className='mt-[35rem] hidden md:block   md:mt-[30rem] mx-auto  w-full'>
                     <img src="./assets/images/taxi.png" className='w-full h-full' />
                 </div>
             </div>

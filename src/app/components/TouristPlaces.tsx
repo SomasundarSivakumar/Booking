@@ -76,7 +76,7 @@ export const TouristPlaces = () => {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     return (
-        <section className="relative bg-white py-28 overflow-hidden font-heading">
+        <section className="relative bg-white py-8 lg:py-28 overflow-hidden font-heading">
             {/* Subtle background texture */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -206,13 +206,13 @@ export const TouristPlaces = () => {
                 </div>
 
                 {/* Bottom CTA */}
-                <div className="mt-16 text-center">
+                {/* <div className="mt-16 text-center">
                     <p className="text-gray-400 text-sm mb-5">Want to explore more? We cover 50+ destinations across Tamil Nadu.</p>
                     <button className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl bg-gradient-to-r from-dynamic-orange to-amber-accent text-white text-[0.85rem] font-bold border-none cursor-pointer shadow-[0_8px_25px_rgba(255,107,53,0.25)] hover:-translate-y-1 hover:shadow-[0_14px_35px_rgba(255,107,53,0.35)] transition-all uppercase tracking-wider">
                         <MapPin size={16} strokeWidth={2} />
                         View All Destinations
                     </button>
-                </div>
+                </div> */}
             </div>
         </section>
     );

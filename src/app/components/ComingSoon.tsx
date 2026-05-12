@@ -14,7 +14,7 @@ export const ComingSoon = () => {
         <section className="bg-gradient-to-b from-[#0f172a] to-[#1a2636] overflow-hidden font-heading text-slate-200">
 
             {/* ── Coming Soon Section ── */}
-            <div className="relative py-32 overflow-hidden">
+            <div className="relative py-8 lg:py-32 overflow-hidden">
                 {/* 3D Animation Keyframes */}
                 <style>{`
                     @keyframes gridScroll {
@@ -74,7 +74,7 @@ export const ComingSoon = () => {
                     {[
                         { size: 40, top: '12%', left: '15%', delay: '0s', dur: '12s', color: 'rgba(255,107,53,0.15)', border: 'rgba(255,107,53,0.3)' },
                         { size: 25, top: '25%', left: '80%', delay: '2s', dur: '15s', color: 'rgba(70,130,180,0.12)', border: 'rgba(70,130,180,0.25)' },
-                        { size: 55, top: '60%', left: '8%',  delay: '4s', dur: '18s', color: 'rgba(168,85,247,0.1)', border: 'rgba(168,85,247,0.2)' },
+                        { size: 55, top: '60%', left: '8%', delay: '4s', dur: '18s', color: 'rgba(168,85,247,0.1)', border: 'rgba(168,85,247,0.2)' },
                         { size: 30, top: '70%', left: '75%', delay: '1s', dur: '14s', color: 'rgba(255,107,53,0.12)', border: 'rgba(255,107,53,0.25)' },
                         { size: 20, top: '40%', left: '90%', delay: '3s', dur: '16s', color: 'rgba(70,130,180,0.1)', border: 'rgba(70,130,180,0.2)' },
                         { size: 35, top: '18%', left: '55%', delay: '5s', dur: '13s', color: 'rgba(255,193,7,0.1)', border: 'rgba(255,193,7,0.2)' },
@@ -161,7 +161,7 @@ export const ComingSoon = () => {
                 <div className="relative z-10 max-w-[85%] mx-auto">
 
                     {/* Top label */}
-                    <div className="flex justify-center mb-12">
+                    <div className="flex justify-center mb-6 md:mb-12">
                         <div className="relative">
                             <div className="absolute inset-0 bg-dynamic-orange/20 blur-xl rounded-full" />
                             <span className="relative inline-flex items-center gap-2 text-[0.65rem] font-black tracking-[4px] uppercase px-6 py-2.5 rounded-full bg-gradient-to-r from-dynamic-orange/20 to-amber-accent/20 border border-dynamic-orange/30 text-dynamic-orange">
@@ -187,9 +187,9 @@ export const ComingSoon = () => {
                     </div>
 
                     {/* Vehicle showcase cards */}
-                    <div className="flex justify-center gap-8 mb-16">
+                    <div className="flex lg:flex-row flex-col justify-center gap-8 mb-16">
                         {/* Car card */}
-                        <div className="group relative w-[280px]">
+                        <div className="group relative w-full lg:w-[280px]">
                             <div className="absolute -inset-1 bg-gradient-to-r from-dynamic-orange to-amber-accent rounded-3xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
                             <div className="relative bg-[#0c1525] rounded-2xl border border-white/[0.08] overflow-hidden hover:border-dynamic-orange/30 transition-all duration-500">
                                 <div className="relative h-[160px] overflow-hidden">
@@ -218,7 +218,7 @@ export const ComingSoon = () => {
                         </div>
 
                         {/* Bike card */}
-                        <div className="group relative w-[280px]">
+                        <div className="group relative w-full lg:w-[280px]">
                             <div className="absolute -inset-1 bg-gradient-to-r from-steel-blue to-blue-400 rounded-3xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
                             <div className="relative bg-[#0c1525] rounded-2xl border border-white/[0.08] overflow-hidden hover:border-steel-blue/30 transition-all duration-500">
                                 <div className="relative h-[160px] overflow-hidden">
@@ -275,9 +275,9 @@ export const ComingSoon = () => {
             </div>
 
             {/* ── Footer ── */}
-            <footer className="bg-[#0b1120] pt-24 pb-12 px-5 border-t border-white/5">
+            <footer className="bg-[#0b1120] pt-10 lg:pt-24 lg:pb-12 pb-8 px-5 border-t border-white/5">
                 <div className="max-w-[90%] mx-auto">
-                    <div className="grid md:grid-cols-4 gap-12 mb-20">
+                    <div className="grid md:grid-cols-4 gap-12 mb-10 lg:mb-20">
                         <div className="col-span-1 md:col-span-1.5">
                             <div className="flex flex-col mb-6">
                                 <span className="font-heading text-2xl font-extrabold tracking-tighter text-white leading-none">
@@ -340,7 +340,7 @@ export const ComingSoon = () => {
                         <p className="text-slate-600 text-xs font-medium">
                             &copy; {new Date().getFullYear()} Prakash Travels. All rights reserved.
                         </p>
-                        <div className="flex gap-8 text-slate-600 text-xs font-bold uppercase tracking-widest">
+                        <div className="lg:flex hidden gap-8 text-slate-600 text-xs font-bold uppercase tracking-widest">
                             <span className="hover:text-slate-400 cursor-pointer">Privacy Policy</span>
                             <span className="hover:text-slate-400 cursor-pointer">Terms of Service</span>
                             <span className="hover:text-slate-400 cursor-pointer">Cookie Policy</span>

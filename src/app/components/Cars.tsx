@@ -170,10 +170,10 @@ export const Cars = () => {
     return (
         <section id="fleet" ref={sectionRef} className="relative" style={{ height: `${CARS.length * 100}vh` }}>
             {/* Section Heading — above sticky */}
-            <div className="text-black uppercase text-center text-8xl font-bold tracking-tight leading-none pt-20 pb-6">
+            <div className="hidden lg:block text-black uppercase text-center text-3xl md:text-8xl font-bold tracking-tight leading-none pt-30 md:pt-20 pb-3 md:pb-6">
                 Find Your Ride
             </div>
-            <div className="text-black/60 text-center text-3xl font-medium tracking-wide pb-4">
+            <div className="hidden lg:block text-black/60 text-center text-xl md:text-3xl font-medium tracking-wide pb-4">
                 Browse our available cars and book instantly
             </div>
 
@@ -194,9 +194,9 @@ export const Cars = () => {
                 <div className="absolute inset-0 bg-black/20" />
 
                 {/* Car Name */}
-                <div ref={carNameRef} className="absolute top-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10">
+                <div ref={carNameRef} className="absolute top-12 left-0 w-full flex flex-col items-center text-center gap-1 z-10">
                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/70">{car.brand}</p>
-                    <h2 className="text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
+                    <h2 className="text-3xl lg:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
                         {car.name.split('/').map((part, i, arr) => (
                             <span key={i}>
                                 {part.trim()}
@@ -210,7 +210,7 @@ export const Cars = () => {
                 </div>
 
                 {/* Car Image — centered at bottom */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 md:w-fit w-[25rem]">
                     <img
                         ref={carImageRef}
                         src={car.image}
@@ -223,7 +223,7 @@ export const Cars = () => {
                 <div ref={specsRef} className="absolute top-[60%] -translate-y-1/2 left-1/2 -translate-x-1/2 w-full max-w-[95rem] px-10 flex justify-between items-center z-20 pointer-events-none">
 
                     {/* Left Column: Type & Seating */}
-                    <div className="flex flex-col gap-10 pointer-events-auto">
+                    <div className="hidden lg:flex flex-col gap-10 pointer-events-auto">
                         {/* Type */}
                         <div className="group flex items-center gap-4 bg-white/90 backdrop-blur-md border border-black/10 rounded-2xl px-7 py-5 shadow-2xl transition-transform hover:scale-105 min-w-[240px]">
                             <div className="w-10 h-10 flex items-center justify-center bg-dynamic-orange/10 rounded-xl">
@@ -255,7 +255,7 @@ export const Cars = () => {
                     </div>
 
                     {/* Right Column: AC & Fuel */}
-                    <div className="flex flex-col gap-10 pointer-events-auto">
+                    <div className="md:flex hidden flex-col gap-10 pointer-events-auto">
                         {/* AC */}
                         <div className="group flex items-center gap-4 bg-white/90 backdrop-blur-md border border-black/10 rounded-2xl px-7 py-5 shadow-2xl transition-transform hover:scale-105 min-w-[240px]">
                             <div className="w-10 h-10 flex items-center justify-center bg-dynamic-orange/10 rounded-xl">

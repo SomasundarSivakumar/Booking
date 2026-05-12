@@ -10,9 +10,9 @@ interface LocationAsyncSelectProps {
     searchPlaceholder?: string;
 }
 
-export const LocationAsyncSelect = ({ 
-    selected, 
-    onChange, 
+export const LocationAsyncSelect = ({
+    selected,
+    onChange,
     placeholder = "Select a location",
     searchPlaceholder = "Search cities, towns, villages..."
 }: LocationAsyncSelectProps) => {
@@ -38,8 +38,8 @@ export const LocationAsyncSelect = ({
             const rect = wrapperRef.current.getBoundingClientRect();
             const spaceBelow = window.innerHeight - rect.bottom;
             const spaceAbove = rect.top;
-            const requiredHeight = 280; 
-            
+            const requiredHeight = 280;
+
             if (spaceBelow < requiredHeight && spaceAbove > spaceBelow) {
                 setMenuPlacement('top');
             } else {
@@ -64,7 +64,7 @@ export const LocationAsyncSelect = ({
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&countrycodes=in&limit=10`);
                 if (res.ok) {
                     const data = await res.json();
-                    
+
                     // Deduplicate and format options
                     const formattedOptions = data.map((item: any) => ({
                         label: item.display_name,
@@ -85,7 +85,7 @@ export const LocationAsyncSelect = ({
     return (
         <div className="relative w-full" ref={wrapperRef}>
             <div
-                className="w-full p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none hover:border-dynamic-orange text-white cursor-pointer flex justify-between items-center transition-colors"
+                className="w-full p-2 md:p-4 rounded-lg bg-[#ffffff0a] border border-[#ffffff1a] focus:bg-[#ffffff15] outline-none hover:border-dynamic-orange text-white cursor-pointer flex justify-between items-center transition-colors"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <span className={selected ? 'text-white truncate pr-2' : 'text-gray-500'}>
@@ -97,10 +97,9 @@ export const LocationAsyncSelect = ({
             </div>
 
             {isOpen && (
-                <div 
-                    className={`absolute z-30 w-full bg-[#2D3E50] border border-[#ffffff1a] rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden animate-fade-in ${
-                        menuPlacement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
-                    }`}
+                <div
+                    className={`absolute z-30 w-full bg-[#2D3E50] border border-[#ffffff1a] rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden animate-fade-in ${menuPlacement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
+                        }`}
                 >
                     <div className="p-2 border-b border-[#ffffff1a] relative">
                         <input
@@ -127,9 +126,8 @@ export const LocationAsyncSelect = ({
                                 <li
                                     key={option.value}
                                     title={option.label}
-                                    className={`p-4 text-xs leading-relaxed cursor-pointer hover:bg-dynamic-orange hover:text-white transition-colors border-b border-[#ffffff0a] last:border-0 ${
-                                        selected?.value === option.value ? 'bg-[#ffffff1a] text-dynamic-orange' : 'text-gray-200'
-                                    }`}
+                                    className={`p-4 text-xs leading-relaxed cursor-pointer hover:bg-dynamic-orange hover:text-white transition-colors border-b border-[#ffffff0a] last:border-0 ${selected?.value === option.value ? 'bg-[#ffffff1a] text-dynamic-orange' : 'text-gray-200'
+                                        }`}
                                     onClick={() => {
                                         onChange(option);
                                         setIsOpen(false);

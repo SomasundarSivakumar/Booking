@@ -43,19 +43,17 @@ export const Header = () => {
 
     return (
         <header
-            className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out ${
-                isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-            } ${
-                isScrolled
+            className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+                } ${isScrolled
                     ? 'bg-black/40 backdrop-blur-xl border-b border-white/10 py-3 shadow-2xl'
                     : 'bg-transparent py-6'
-            }`}
+                }`}
         >
-            <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
+            <div className="container mx-auto px-3 md:px-12 flex justify-between items-center">
                 {/* Logo */}
                 <Link href="/" className="group flex items-center space-x-2">
                     <div className="flex flex-col">
-                        <span className="font-heading text-2xl md:text-3xl font-extrabold tracking-tighter text-white leading-none">
+                        <span className="font-heading text-xl md:text-3xl font-extrabold tracking-tighter text-white leading-none">
                             PRAKASH <span className="text-amber-accent">TRAVEL</span>
                         </span>
                         <span className="text-[0.6rem] uppercase tracking-[0.3em] text-gray-400 font-bold group-hover:text-amber-accent transition-colors">
@@ -84,10 +82,10 @@ export const Header = () => {
                         <span className="text-[0.6rem] uppercase font-bold tracking-widest">Need Help?</span>
                         <span className="text-sm font-bold text-white">+91 98765 43210</span>
                     </div>
-                    <button className="bg-dynamic-orange hover:bg-amber-accent text-white px-8 py-3 rounded-full text-sm font-black uppercase tracking-tighter transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-dynamic-orange/20 border border-white/10">
+                    <button className="hidden md:block bg-dynamic-orange hover:bg-amber-accent text-white px-8 py-3 rounded-full text-sm font-black uppercase tracking-tighter transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-dynamic-orange/20 border border-white/10">
                         Book Now
                     </button>
-                    
+
                     {/* Mobile Menu Toggle (Simplified) */}
                     <button className="lg:hidden text-white p-2">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

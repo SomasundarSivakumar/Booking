@@ -4,13 +4,13 @@ export const HeroBanner = () => {
             {/* Dark overlay for better text readability against the cityscape */}
             <div className="absolute inset-0 bg-[#000000] opacity-60 z-0"></div>
 
-            <div className="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center space-y-8 animate-in fade-in zoom-in duration-700">
-                <h1 className="font-heading text-5xl md:text-7xl font-bold text-white uppercase tracking-tight drop-shadow-lg leading-tight">
-                    Your Journey, <br className="hidden md:block" />
+            <div className="relative z-10 text-center px-3 md:px-6 max-w-4xl mx-auto flex flex-col items-center space-y-8 animate-in fade-in zoom-in duration-700">
+                <h1 className="font-heading text-3xl md:text-7xl font-bold text-white uppercase tracking-tight drop-shadow-lg leading-tight">
+                    Your Journey, <br className="" />
                     <span className="text-amber-accent">Your Choice</span>
                 </h1>
 
-                <p className="font-sans text-xl md:text-2xl text-light-gray max-w-2xl drop-shadow-md">
+                <p className="font-sans text-lg md:text-2xl text-light-gray max-w-2xl drop-shadow-md">
                     Experience seamless travels with Prakash Travel. Book your perfect ride from our premium fleet of cars and bikes today.
                 </p>
 
