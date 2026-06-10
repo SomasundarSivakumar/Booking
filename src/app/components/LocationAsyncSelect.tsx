@@ -9,6 +9,7 @@ interface LocationAsyncSelectProps {
     placeholder?: string;
     searchPlaceholder?: string;
     error?: boolean;
+    showCurrentLocation?: boolean;
 }
 
 export const LocationAsyncSelect = ({
@@ -16,14 +17,57 @@ export const LocationAsyncSelect = ({
     onChange,
     placeholder = "Select a location",
     searchPlaceholder = "Search cities, towns, villages...",
-    error
+    error,
+    showCurrentLocation = false
 }: LocationAsyncSelectProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [options, setOptions] = useState<Option[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLocating, setIsLocating] = useState(false);
     const [menuPlacement, setMenuPlacement] = useState<'bottom' | 'top'>('bottom');
     const wrapperRef = useRef<HTMLDivElement>(null);
+
+    const handleUseCurrentLocation = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            return;
+        }
+
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                try {
+                    // OpenStreetMap Nominatim reverse geocoding API
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const label = data.display_name;
+                        onChange({
+                            label,
+                            value: `${latitude},${longitude}`
+                        });
+                        setIsOpen(false);
+                    } else {
+                        alert("Failed to get location address");
+                    }
+                } catch (error) {
+                    console.error("Error reverse geocoding", error);
+                    alert("Error retrieving location name");
+                } finally {
+                    setIsLocating(false);
+                }
+            },
+            (error) => {
+                console.error("Error getting geolocation", error);
+                alert(error.message || "Failed to get your current position");
+                setIsLocating(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    };
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -121,6 +165,22 @@ export const LocationAsyncSelect = ({
                         )}
                     </div>
                     <ul className="max-h-56 overflow-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
+                        {showCurrentLocation && (
+                            <li
+                                className="p-4 text-xs font-semibold leading-relaxed cursor-pointer hover:bg-[#ff8559] hover:text-white transition-colors border-b border-[#ffffff1a] text-dynamic-orange flex items-center gap-2"
+                                onClick={isLocating ? undefined : handleUseCurrentLocation}
+                            >
+                                {isLocating ? (
+                                    <div className="w-3.5 h-3.5 border-2 border-dynamic-orange border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                )}
+                                <span>{isLocating ? "Getting location..." : "Use Current Location"}</span>
+                            </li>
+                        )}
                         {searchTerm.length < 3 ? (
                             <li className="p-4 text-sm text-gray-400 text-center">Type at least 3 characters to search...</li>
                         ) : options.length > 0 ? (

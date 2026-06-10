@@ -89,12 +89,33 @@ export const Booking = () => {
     // Derived Rate state
     let totalRate: number | null = null;
     let computedDistance: number | null = null;
+    let waitingCharge: number = 0;
+    let tripDays: number = 1;
+    let isBigVehicle: boolean = false;
+
+    if (pickupDate && returnDate && tripType === 'round-trip') {
+        const start = Date.UTC(pickupDate.getFullYear(), pickupDate.getMonth(), pickupDate.getDate());
+        const end = Date.UTC(returnDate.getFullYear(), returnDate.getMonth(), returnDate.getDate());
+        const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+        tripDays = diffDays >= 0 ? diffDays + 1 : 1;
+    }
+
+    if (selectedCar) {
+        isBigVehicle = /(suv|mpv|ertiga|scorpio|bolero|innova|tavera|xylo|marazzo|suv)/i.test(selectedCar.label) || /(ertiga|scorpio|bolero|innova|tavera)/i.test(selectedCar.value);
+    }
+
     if (distanceKm !== null) {
         computedDistance = tripType === 'round-trip' ? distanceKm * 2 : distanceKm;
         if (selectedCar) {
             const carDetails = carOptions.find(c => c.value === selectedCar.value);
             if (carDetails) {
                 totalRate = computedDistance * carDetails.rate;
+                
+                if (tripType === 'round-trip' && tripDays >= 2) {
+                    const waitingChargePerDay = isBigVehicle ? 2500 : 1500;
+                    waitingCharge = (tripDays - 1) * waitingChargePerDay;
+                    totalRate += waitingCharge;
+                }
             }
         }
     }
@@ -240,7 +261,7 @@ export const Booking = () => {
                         {/* Tabs — Only Round Trip */}
                         <div className="flex space-x-8 border-b border-white/20">
                             <div className="pb-4 text-sm font-bold tracking-wider text-white relative">
-                                ROUND TRIP
+                                BOOK RIDE
                                 <div className="absolute bottom-[-1px] left-0 right-0 h-[3px] bg-dynamic-orange" />
                             </div>
                         </div>
@@ -264,6 +285,7 @@ export const Booking = () => {
                                         placeholder="Select pickup location"
                                         searchPlaceholder="Search cities, towns, villages..."
                                         error={!!errors.pickupLocation}
+                                        showCurrentLocation={true}
                                     />
                                     {errors.pickupLocation && <p className="text-red-500 text-[10px] mt-1">{errors.pickupLocation}</p>}
                                 </div>
@@ -414,30 +436,37 @@ export const Booking = () => {
 
                             {/* Trip Summary (Distance & Rate) */}
                             {(distanceKm !== null || selectedCar) && (
-                                <div className="mt-6 p-5 rounded-xl bg-[#0000003a] border border-[#ffffff1a] flex flex-col md:flex-row justify-between items-center animate-fade-in gap-4 text-sm relative overflow-hidden">
+                                <div className="mt-6 p-5 rounded-xl bg-[#0000003a] border border-[#ffffff1a] flex flex-col animate-fade-in text-sm relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-dynamic-orange" />
-                                    <div className="flex flex-col">
-                                        <span className="text-gray-400 font-semibold tracking-wider text-xs uppercase mb-1">Total Distance</span>
-                                        {isCalculatingDistance ? (
-                                            <span className="text-white font-medium">Calculating path...</span>
-                                        ) : computedDistance !== null ? (
-                                            <span className="text-white font-bold text-lg">
-                                                {computedDistance} km <span className="text-gray-400 text-sm font-normal ml-1">{tripType === 'round-trip' ? '(Round Trip)' : '(One Way)'}</span>
-                                            </span>
-                                        ) : (
-                                            <span className="text-white font-medium">-</span>
-                                        )}
+                                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                                        <div className="flex flex-col w-full md:w-auto">
+                                            <span className="text-gray-400 font-semibold tracking-wider text-xs uppercase mb-1">Total Distance</span>
+                                            {isCalculatingDistance ? (
+                                                <span className="text-white font-medium">Calculating path...</span>
+                                            ) : computedDistance !== null ? (
+                                                <span className="text-white font-bold text-lg">
+                                                    {computedDistance} km <span className="text-gray-400 text-sm font-normal ml-1">{tripType === 'round-trip' ? '(Round Trip)' : '(One Way)'}</span>
+                                                </span>
+                                            ) : (
+                                                <span className="text-white font-medium">-</span>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col w-full md:w-auto md:text-right">
+                                            <span className="text-gray-400 font-semibold tracking-wider text-xs uppercase mb-1">Estimated Rate</span>
+                                            {totalRate !== null ? (
+                                                <span className="text-dynamic-orange font-bold text-3xl">₹{totalRate.toLocaleString()}</span>
+                                            ) : selectedCar ? (
+                                                <span className="text-gray-400 font-medium">Select locations to calculate</span>
+                                            ) : (
+                                                <span className="text-gray-400 font-medium">Select a car</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col md:text-right">
-                                        <span className="text-gray-400 font-semibold tracking-wider text-xs uppercase mb-1">Estimated Rate</span>
-                                        {totalRate !== null ? (
-                                            <span className="text-dynamic-orange font-bold text-3xl">₹{totalRate.toLocaleString()}</span>
-                                        ) : selectedCar ? (
-                                            <span className="text-gray-400 font-medium">Select locations to calculate</span>
-                                        ) : (
-                                            <span className="text-gray-400 font-medium">Select a car</span>
-                                        )}
-                                    </div>
+                                    {waitingCharge > 0 && (
+                                        <div className="text-[11px] text-gray-400 mt-4 pt-3 border-t border-white/10">
+                                            <span className="text-amber-500">ℹ</span> Rate includes ₹{waitingCharge.toLocaleString()} waiting charge ({tripDays - 1} {tripDays - 1 === 1 ? 'day' : 'days'} at ₹{isBigVehicle ? '2,500' : '1,500'}/day).
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
