@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapPin, Star, ArrowRight, Clock, Camera } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+    gsap.registerPlugin(ScrollTrigger);
+}
 
 const PLACES = [
     {
         name: "Mahabalipuram",
         subtitle: "Shore Temple & Rock Carvings",
         description: "A UNESCO World Heritage Site featuring stunning 7th-century stone temples and intricate rock carvings along the Bay of Bengal coastline.",
-        image: "https://images.unsplash.com/photo-1621330396173-e41b1cafd17f?w=800&q=80",
+        image: "/assets/images/Maha.jpg",
         rating: 4.8,
         duration: "1 Day Trip",
         distance: "58 km from Chennai",
@@ -19,7 +25,7 @@ const PLACES = [
         name: "Ooty",
         subtitle: "Queen of Hill Stations",
         description: "Nestled in the Nilgiri Hills, Ooty enchants visitors with lush tea gardens, serene lakes, the famous toy train, and cool misty weather year-round.",
-        image: "https://images.unsplash.com/photo-1597735881932-d9664c9bbcea?w=800&q=80",
+        image: "/assets/images/Ooty.jpg",
         rating: 4.9,
         duration: "2–3 Days",
         distance: "270 km from Coimbatore",
@@ -30,7 +36,7 @@ const PLACES = [
         name: "Madurai",
         subtitle: "Meenakshi Amman Temple",
         description: "Home to the iconic Meenakshi Temple with its towering gopurams, Madurai is one of the oldest living cities in the world with rich Dravidian heritage.",
-        image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800&q=80",
+        image: "/assets/images/Mad.jpg",
         rating: 4.7,
         duration: "1–2 Days",
         distance: "462 km from Chennai",
@@ -41,7 +47,7 @@ const PLACES = [
         name: "Rameswaram",
         subtitle: "Sacred Island Temple Town",
         description: "Connected by the Pamban Bridge, Rameswaram is one of the holiest pilgrimage sites in India, famous for the Ramanathaswamy Temple and pristine beaches.",
-        image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80",
+        image: "/assets/images/Ram.jpg",
         rating: 4.8,
         duration: "1–2 Days",
         distance: "573 km from Chennai",
@@ -52,7 +58,7 @@ const PLACES = [
         name: "Kodaikanal",
         subtitle: "Princess of Hill Stations",
         description: "A breathtaking hill station known for its star-shaped lake, dense pine forests, stunning waterfalls, and panoramic views from Coaker's Walk.",
-        image: "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=800&q=80",
+        image: "/assets/images/Kodai.jpg",
         rating: 4.8,
         duration: "2–3 Days",
         distance: "120 km from Madurai",
@@ -63,7 +69,7 @@ const PLACES = [
         name: "Thanjavur",
         subtitle: "Brihadeeswara Temple",
         description: "The cultural capital of Tamil Nadu, Thanjavur boasts the magnificent Big Temple — a masterpiece of Chola architecture and a UNESCO World Heritage Site.",
-        image: "https://images.unsplash.com/photo-1548013146-72479768bada?w=800&q=80",
+        image: "/assets/images/Thanjai.jpg",
         rating: 4.7,
         duration: "1 Day Trip",
         distance: "350 km from Chennai",
@@ -74,9 +80,78 @@ const PLACES = [
 
 export const TouristPlaces = () => {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+    const sectionRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        const section = sectionRef.current;
+        if (!section) return;
+
+        const chars = section.querySelectorAll('.places-char');
+        const word = section.querySelector('.places-word');
+        const badge = section.querySelector('.places-badge');
+        const subtext = section.querySelector('.places-subtext');
+        const divider = section.querySelector('.places-divider');
+        const cards = section.querySelectorAll('.place-card');
+
+        gsap.set(chars, { opacity: 0, y: 15 });
+        gsap.set(word, { opacity: 0, y: 15 });
+        gsap.set(badge, { opacity: 0, y: -15 });
+        gsap.set(subtext, { opacity: 0, y: 20 });
+        gsap.set(divider, { opacity: 0, scale: 0.5 });
+        gsap.set(cards, { opacity: 0, y: 40, scale: 0.95 });
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: section,
+                start: 'top 80%',
+                end: 'bottom 20%',
+                toggleActions: 'play reverse play reverse',
+            }
+        });
+
+        tl.to(badge, {
+            opacity: 1,
+            y: 0,
+            duration: 0.35,
+            ease: 'power2.out',
+        })
+            .to(chars, {
+                opacity: 1,
+                y: 0,
+                duration: 0.35,
+                stagger: 0.01,
+                ease: 'power3.out',
+            }, '-=0.2')
+            .to(word, {
+                opacity: 1,
+                y: 0,
+                duration: 0.35,
+                ease: 'power3.out',
+            }, '-=0.2')
+            .to(subtext, {
+                opacity: 1,
+                y: 0,
+                duration: 0.45,
+                ease: 'power2.out',
+            }, '-=0.2')
+            .to(divider, {
+                opacity: 1,
+                scale: 1,
+                duration: 0.35,
+                ease: 'power2.out',
+            }, '-=0.3')
+            .to(cards, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.45,
+                stagger: 0.05,
+                ease: 'power2.out',
+            }, '-=0.2');
+    }, []);
 
     return (
-        <section className="relative bg-white py-8 lg:py-28 overflow-hidden font-heading">
+        <section ref={sectionRef} className="relative bg-white py-8 lg:py-28 overflow-hidden font-heading">
             {/* Subtle background texture */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -90,18 +165,25 @@ export const TouristPlaces = () => {
 
                 {/* Section Header */}
                 <div className="text-center mb-20">
-                    <div className="inline-flex items-center gap-2 text-[0.65rem] font-black tracking-[4px] uppercase px-5 py-2 rounded-full bg-dynamic-orange/[0.08] border border-dynamic-orange/15 text-dynamic-orange mb-5">
+                    <div className="places-badge inline-flex items-center gap-2 text-[0.65rem] font-black tracking-[4px] uppercase px-5 py-2 rounded-full bg-dynamic-orange/[0.08] border border-dynamic-orange/15 text-dynamic-orange mb-5">
                         <Camera size={12} strokeWidth={2.5} />
                         Explore Tamil Nadu
                     </div>
                     <h2 className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold text-gray-900 leading-tight mb-4">
-                        Top Tourist <span className="bg-gradient-to-r from-dynamic-orange to-amber-accent bg-clip-text text-transparent">Destinations</span>
+                        {"Top Tourist ".split('').map((char, index) => (
+                            <span key={index} className="places-char inline-block">
+                                {char === ' ' ? '\u00A0' : char}
+                            </span>
+                        ))}
+                        <span className="places-word bg-gradient-to-r from-dynamic-orange to-amber-accent bg-clip-text text-transparent inline-block">
+                            Destinations
+                        </span>
                     </h2>
-                    <p className="text-gray-500 text-[1rem] leading-7 max-w-[520px] mx-auto">
+                    <p className="places-subtext text-gray-500 text-[1rem] leading-7 max-w-[520px] mx-auto">
                         Discover the most breathtaking places in Tamil Nadu. Book your ride with us and explore the beauty of South India.
                     </p>
                     {/* Decorative line */}
-                    <div className="flex items-center justify-center gap-3 mt-6">
+                    <div className="places-divider flex items-center justify-center gap-3 mt-6">
                         <div className="w-12 h-[2px] bg-gradient-to-r from-transparent to-dynamic-orange/40" />
                         <div className="w-2 h-2 rounded-full bg-dynamic-orange" />
                         <div className="w-12 h-[2px] bg-gradient-to-l from-transparent to-dynamic-orange/40" />
@@ -115,7 +197,7 @@ export const TouristPlaces = () => {
                             key={place.name}
                             onMouseEnter={() => setHoveredIndex(index)}
                             onMouseLeave={() => setHoveredIndex(null)}
-                            className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-500 cursor-pointer"
+                            className="place-card group relative bg-white rounded-2xl overflow-hidden transition-all duration-500 cursor-pointer"
                             style={{
                                 boxShadow: hoveredIndex === index
                                     ? '0 25px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)'

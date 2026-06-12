@@ -184,6 +184,8 @@ export const Consulting = () => {
     const router = useRouter();
     const [listings, setListings] = useState<{ cars: ListingItem[]; bikes: ListingItem[] }>({ cars: [], bikes: [] });
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedService, setSelectedService] = useState('');
 
     const fetchListings = async () => {
         try {
@@ -244,7 +246,7 @@ export const Consulting = () => {
                     subtitle="Used Cars"
                     description="Browse hundreds of certified second-hand cars across all budgets. Sedans, SUVs, hatchbacks — every car is inspected, documented, and priced fairly."
                     items={listings.cars}
-                    imageUrl="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=900&q=80"
+                    imageUrl="/assets/images/used_cars.jpg"
                     imageAlt="Second hand cars"
                     reverse={false}
                     accentClass="text-dynamic-orange"
@@ -271,7 +273,7 @@ export const Consulting = () => {
                     subtitle="Used Bikes"
                     description="From powerful cruisers to fuel-efficient scooters, explore a wide range of verified second-hand bikes. Every listing includes service history and inspection details."
                     items={listings.bikes}
-                    imageUrl="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80"
+                    imageUrl="/assets/images/used_bikes.jpg"
                     imageAlt="Second hand bikes"
                     reverse={true}
                     accentClass="text-steel-blue"
@@ -296,9 +298,9 @@ export const Consulting = () => {
 
                         <div className="space-y-6">
                             {[
-                                { icon: <Phone className="text-dynamic-orange" />, title: "Call Us", detail: "+91 98765 43210" },
-                                { icon: <ShoppingBag className="text-steel-blue" />, title: "Email Us", detail: "contact@prakashtravels.com" },
-                                { icon: <MapPin className="text-dynamic-orange" />, title: "Our Location", detail: "Main Market St, Chennai, Tamil Nadu" },
+                                { icon: <Phone className="text-dynamic-orange" />, title: "Call Us", detail: "+91 70920 22232", href: "tel:+917092022232" },
+                                { icon: <ShoppingBag className="text-steel-blue" />, title: "Email Us", detail: "prkshtravels@gmail.com", href: "mailto:prkshtravels@gmail.com" },
+                                { icon: <MapPin className="text-dynamic-orange" />, title: "Our Location", detail: "Sayalkudi, Tamil Nadu", href: null },
                             ].map((item, i) => (
                                 <div key={i} className="flex items-start gap-4">
                                     <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center shrink-0">
@@ -306,7 +308,13 @@ export const Consulting = () => {
                                     </div>
                                     <div>
                                         <h4 className="text-white font-bold text-sm tracking-wide">{item.title}</h4>
-                                        <p className="text-slate-400 text-sm mt-1">{item.detail}</p>
+                                        {item.href ? (
+                                            <a href={item.href} className="text-slate-400 hover:text-white transition-colors text-sm mt-1 inline-block">
+                                                {item.detail}
+                                            </a>
+                                        ) : (
+                                            <p className="text-slate-400 text-sm mt-1">{item.detail}</p>
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -424,7 +432,16 @@ export const Consulting = () => {
                             <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-6">Services</h4>
                             <ul className="space-y-4 text-slate-500 text-sm font-medium">
                                 {['Car Rental', 'Taxi Service', 'Marketplace', 'Inspection', 'Insurance'].map(link => (
-                                    <li key={link} className="hover:text-amber-accent transition-colors cursor-pointer">{link}</li>
+                                    <li 
+                                        key={link} 
+                                        onClick={() => {
+                                            setSelectedService(link);
+                                            setIsModalOpen(true);
+                                        }}
+                                        className="hover:text-amber-accent transition-colors cursor-pointer"
+                                    >
+                                        {link}
+                                    </li>
                                 ))}
                             </ul>
                         </div>
@@ -453,6 +470,40 @@ export const Consulting = () => {
                     </div>
                 </div>
             </footer>
+
+            {/* Coming Soon Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in">
+                    <div className="bg-[#0f172a] border border-white/10 text-white p-8 rounded-2xl w-full max-w-md relative shadow-2xl animate-scale-in text-center font-heading">
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white/5 rounded-full text-slate-400 hover:bg-white/10 hover:text-white font-bold transition-colors cursor-pointer border-none"
+                        >
+                            &times;
+                        </button>
+
+                        <div className="w-16 h-16 rounded-full bg-dynamic-orange/10 border border-dynamic-orange/20 flex items-center justify-center mx-auto mb-6 text-dynamic-orange animate-bounce">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+
+                        <h3 className="text-xl font-bold text-white mb-2">{selectedService}</h3>
+                        <p className="text-dynamic-orange text-xs font-black tracking-widest uppercase mb-4">Coming Soon</p>
+                        
+                        <p className="text-slate-400 text-sm leading-6 mb-6">
+                            We are currently designing and preparing our premium <span className="text-white font-semibold">{selectedService}</span> platform. We'll be ready to launch this service for you very soon!
+                        </p>
+
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="w-full py-3 bg-gradient-to-r from-dynamic-orange to-amber-accent text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:opacity-95 cursor-pointer border-none uppercase tracking-wider text-xs"
+                        >
+                            Awesome, Got It!
+                        </button>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };

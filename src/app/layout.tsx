@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SmoothScroll } from "./components/SmoothScroll";
 import HeaderWrapper from "./components/HeaderWrapper";
+import { SplashLoader } from "./components/SplashLoader";
 
 export const metadata: Metadata = {
   title: "Prakash Travel",
@@ -28,6 +29,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans bg-background text-foreground selection:bg-dynamic-orange/30">
+        <SplashLoader />
         <HeaderWrapper />
         <SmoothScroll>
           {children}

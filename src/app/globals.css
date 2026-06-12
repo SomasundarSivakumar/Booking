@@ -181,3 +181,24 @@ body {
 .grid-item-animate:nth-child(6) { animation-delay: 0.3s; }
 .grid-item-animate:nth-child(7) { animation-delay: 0.35s; }
 .grid-item-animate:nth-child(8) { animation-delay: 0.4s; }
+
+/* Lenis Smooth Scroll Configuration */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}

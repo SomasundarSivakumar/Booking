@@ -62,25 +62,13 @@ export const Header = () => {
                     </div>
                 </Link>
 
-                {/* Desktop Navigation */}
-                <nav className="hidden lg:flex items-center space-x-10">
-                    {['Home', 'Fleet', 'Booking', 'Services', 'Contact'].map((item) => (
-                        <Link
-                            key={item}
-                            href={`#${item.toLowerCase()}`}
-                            className="relative font-sans text-sm font-bold uppercase tracking-widest text-white/80 hover:text-amber-accent transition-colors duration-300 group"
-                        >
-                            {item}
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-accent transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                    ))}
-                </nav>
+
 
                 {/* Call to Action */}
                 <div className="flex items-center space-x-6">
                     <div className="hidden sm:flex flex-col items-end mr-2 text-white/60">
                         <span className="text-[0.6rem] uppercase font-bold tracking-widest">Need Help?</span>
-                        <span className="text-sm font-bold text-white">+91 98765 43210</span>
+                        <a href="tel:+917092022232" className="text-sm font-bold text-white hover:text-dynamic-orange transition-colors">+91 70920 22232</a>
                     </div>
                     <button
                         onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
@@ -89,12 +77,7 @@ export const Header = () => {
                         Book Now
                     </button>
 
-                    {/* Mobile Menu Toggle (Simplified) */}
-                    <button className="lg:hidden text-white p-2">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                        </svg>
-                    </button>
+
                 </div>
             </div>
         </header>

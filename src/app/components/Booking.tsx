@@ -1,6 +1,14 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import html2canvas from 'html2canvas';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+}
+import { GlobeThreeJs } from './GlobeThreeJs';
+import { BookingParticlesBg } from './BookingParticlesBg';
 import { SearchSelect, Option } from './SearchSelect';
 import { LocationAsyncSelect } from './LocationAsyncSelect';
 import DatePicker from 'react-datepicker';
@@ -32,6 +40,56 @@ export const Booking = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [carOptions, setCarOptions] = useState<any[]>(DEFAULT_CAR_OPTIONS);
+
+    const sectionRef = useRef<HTMLElement>(null);
+    const headingRef = useRef<HTMLDivElement>(null);
+    const formRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const section = sectionRef.current;
+        const heading = headingRef.current;
+        const form = formRef.current;
+        if (!section || !heading || !form) return;
+
+        const chars = heading.querySelectorAll('.booking-char');
+        const subtext = heading.querySelector('.booking-subtext');
+
+        // Set initial state for GSAP
+        gsap.set(chars, { y: 15, opacity: 0, filter: 'blur(8px)' });
+        gsap.set(subtext, { y: 20, opacity: 0 });
+        gsap.set(form, { y: 55, opacity: 0, scale: 0.97 });
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: section,
+                start: 'top 80%',
+                end: 'bottom 20%',
+                toggleActions: 'play reverse play reverse',
+            }
+        });
+
+        tl.to(chars, {
+            y: 0,
+            opacity: 1,
+            filter: 'blur(0px)',
+            duration: 0.35,
+            stagger: 0.012,
+            ease: 'power3.out',
+        })
+        .to(subtext, {
+            y: 0,
+            opacity: 1,
+            duration: 0.45,
+            ease: 'power2.out',
+        }, '-=0.15')
+        .to(form, {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.5,
+            ease: 'power2.out',
+        }, '-=0.25');
+    }, []);
 
     useEffect(() => {
         const fetchRates = async () => {
@@ -110,7 +168,7 @@ export const Booking = () => {
             const carDetails = carOptions.find(c => c.value === selectedCar.value);
             if (carDetails) {
                 totalRate = computedDistance * carDetails.rate;
-                
+
                 if (tripType === 'round-trip' && tripDays >= 2) {
                     const waitingChargePerDay = isBigVehicle ? 2500 : 1500;
                     waitingCharge = (tripDays - 1) * waitingChargePerDay;
@@ -240,7 +298,7 @@ export const Booking = () => {
                 const data = await res.json();
                 alert('Error placing booking: ' + (data.error || 'Unknown error'));
             }
-        } catch (error) {
+} catch (error) {
             console.error('Failed to book', error);
             alert('An error occurred while placing the booking.');
         } finally {
@@ -249,14 +307,47 @@ export const Booking = () => {
     };
 
     return (
-        <section id="booking" className="w-full relative md:h-screen md:flex md:items-center md:justify-center pb-8 md:pb-0">
-            <div className='absolute top-[10%] animate-spin duration-500 left-[-9%] w-70 h-70 hidden md:block'>
-                <img src="./assets/images/Tyer_round.png" className='w-full h-full' />
-            </div>
+        <section
+            ref={sectionRef}
+            id="booking"
+            className="w-full relative overflow-hidden py-20 px-4"
+            style={{ background: 'linear-gradient(to right, rgba(255,107,53,0.18) 0%, rgba(255,183,3,0.09) 22%, #ffffff 42%, #ffffff 58%, rgba(70,130,180,0.12) 78%, rgba(45,62,80,0.20) 100%)' }}
+        >
+            {/* Three.js Dotted Globe — absolute background */}
+            <GlobeThreeJs />
 
-            <div className="w-full pt-8 md:pt-0 lg:w-[80%] mx-auto">
-                <div className="relative md:absolute top-0 md:top-[-10rem] md:translate-x-1/2 md:right-1/2 w-[95%] lg:w-[60%] mx-auto rounded-md lg:rounded-2xl bg-primary shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10">
-                    <div className="px-5 lg:px-10 py-5 lg:py-8 text-white flex flex-col lg:gap-6 gap-2">
+            {/* 2D Canvas Interactive Particles — full background */}
+            <BookingParticlesBg />
+
+            <div className="relative z-10 max-w-4xl mx-auto">
+                {/* Section Heading */}
+                <div ref={headingRef} className="text-center mb-10">
+                    <p className="text-dynamic-orange text-xs font-bold uppercase tracking-[0.3em] mb-2">
+                        {"Ready to Ride?".split('').map((char, index) => (
+                            <span key={index} className="booking-char inline-block opacity-0 filter blur-[8px]">
+                                {char === ' ' ? '\u00A0' : char}
+                            </span>
+                        ))}
+                    </p>
+                    <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">
+                        {"Book Your ".split('').map((char, index) => (
+                            <span key={index} className="booking-char inline-block opacity-0 filter blur-[8px]">
+                                {char === ' ' ? '\u00A0' : char}
+                            </span>
+                        ))}
+                        <span className="text-dynamic-orange inline-block">
+                            {"Ride".split('').map((char, index) => (
+                                <span key={index} className="booking-char inline-block opacity-0 filter blur-[8px]">
+                                    {char === ' ' ? '\u00A0' : char}
+                                </span>
+                            ))}
+                        </span>
+                    </h2>
+                    <p className="booking-subtext text-gray-500 mt-3 text-sm md:text-base opacity-0">Fill in the details below and we&apos;ll take care of the rest.</p>
+                </div>
+
+                <div ref={formRef} className="w-full rounded-2xl bg-primary/95 backdrop-blur-md shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-white/10">
+                    <div className="px-5 lg:px-10 py-8 lg:py-10 text-white flex flex-col gap-6">
 
                         {/* Tabs — Only Round Trip */}
                         <div className="flex space-x-8 border-b border-white/20">
@@ -481,11 +572,7 @@ export const Booking = () => {
                                 </button>
                             </div>
                         </div>
-
                     </div>
-                </div>
-                <div className='mt-[35rem] hidden md:block   md:mt-[30rem] mx-auto  w-full'>
-                    <img src="./assets/images/taxi.png" className='w-full h-full' />
                 </div>
             </div>
 
