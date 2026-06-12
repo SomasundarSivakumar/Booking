@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prakashtravels.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.prakashtravels.online'
+  const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
 
   return {
     rules: {
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/admin/',
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${cleanBase}/sitemap.xml`,
   }
 }
