@@ -1120,29 +1120,41 @@ export default function AdminPage() {
                           {b.finished ? <CheckCircle2 size={15} /> : <Circle size={15} />}
                         </button>
                       </div>
-                      <div className="flex flex-col gap-1 min-w-0">
-                        <p className="text-white font-bold text-sm truncate">{b.car_model || 'Unknown Car'}</p>
+                      <div className="flex flex-col gap-1 min-w-0 w-full">
+                        <p className="text-white font-bold text-sm break-words">{b.car_model || 'Unknown Car'}</p>
                         <div className="flex items-center gap-2">
                           <span className={`inline-flex items-center gap-1 text-[0.65rem] font-bold px-2 py-0.5 rounded-full border ${b.trip_type === 'round-trip' ? 'bg-purple-500/10 text-purple-400' : 'bg-steel-blue/10 text-steel-blue'}`}>
                             {b.trip_type === 'round-trip' ? <RefreshCw size={10} /> : <Navigation size={10} />} {b.trip_type === 'round-trip' ? 'Round Trip' : 'One Way'}
                           </span>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-1 min-w-0 text-slate-300 text-[0.8rem]">
-                        <span className="truncate flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-500 shrink-0" /> {b.pickup_location}</span>
-                        <span className="truncate flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500 shrink-0" /> {b.drop_location}</span>
+                      <div className="flex flex-col gap-1.5 min-w-0 text-slate-300 text-[0.8rem] w-full">
+                        <div className="flex items-start gap-1.5 w-full">
+                          <span className="w-2 h-2 rounded-full bg-green-500 shrink-0 mt-1.5" />
+                          <span className="break-words font-medium">{b.pickup_location}</span>
+                        </div>
+                        <div className="flex items-start gap-1.5 w-full">
+                          <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 mt-1.5" />
+                          <span className="break-words font-medium">{b.drop_location}</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col gap-0.5 text-slate-300 text-xs">
-                        <span className="flex items-center gap-1"><CalendarDays size={12} /> {new Date(b.pickup_date).toLocaleDateString()}</span>
-                        {b.pickup_time && <span className="flex items-center gap-1"><Clock3 size={12} /> {b.pickup_time}</span>}
+                      <div className="flex flex-col gap-0.5 text-slate-300 text-xs w-full">
+                        <span className="flex items-center gap-1.5"><CalendarDays size={12} className="shrink-0" /> {new Date(b.pickup_date).toLocaleDateString()}</span>
+                        {b.pickup_time && <span className="flex items-center gap-1.5"><Clock3 size={12} className="shrink-0" /> {b.pickup_time}</span>}
                       </div>
-                      <div className="flex flex-col gap-0.5">
+                      <div className="flex flex-col gap-0.5 w-full">
                         <span className="text-dynamic-orange font-bold text-sm">{b.total_rate ? formatPrice(b.total_rate) : 'TBD'}</span>
                         <span className="text-slate-500 text-xs">{b.distance_km ? `${b.distance_km} km` : 'N/A'}</span>
                       </div>
-                      <div className="flex flex-col gap-1 min-w-0 text-white font-semibold text-sm">
-                        <span className="truncate flex items-center gap-1.5"><User size={13} className="text-slate-400" /> {b.customer_name || 'N/A'}</span>
-                        <span className="truncate flex items-center gap-1.5 text-slate-400 text-xs font-normal"><Phone size={11} /> {b.contact || 'N/A'}</span>
+                      <div className="flex flex-col gap-1.5 min-w-0 text-white font-semibold text-sm w-full">
+                        <div className="flex items-center gap-1.5 w-full">
+                          <User size={13} className="text-slate-400 shrink-0" />
+                          <span className="break-words">{b.customer_name || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 w-full text-slate-400 text-xs font-normal">
+                          <Phone size={11} className="shrink-0" />
+                          <a href={`tel:${b.contact}`} className="hover:underline hover:text-dynamic-orange text-slate-400 break-words">{b.contact || 'N/A'}</a>
+                        </div>
                       </div>
                           <div className="flex items-center gap-2 shrink-0 w-full lg:w-auto justify-end mt-2 lg:mt-0 pt-3 lg:pt-0 border-t border-white/5 lg:border-none">
                             <button onClick={() => setEditingBooking(b)} className="flex-1 lg:flex-none h-8 lg:w-8 lg:h-8 rounded-lg bg-steel-blue/10 border border-steel-blue/20 flex items-center justify-center text-steel-blue hover:bg-steel-blue/20 cursor-pointer transition-colors"><Pencil size={14} /><span className="lg:hidden ml-2 text-xs font-bold">Edit</span></button>
