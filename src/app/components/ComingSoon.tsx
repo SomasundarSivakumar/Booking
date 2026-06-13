@@ -282,7 +282,7 @@ export const ComingSoon = () => {
 
                 {/* 2. Main Title */}
                 <div className="text-center mb-16">
-                    <h2 className="text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold text-white leading-[1.15] mb-5 tracking-tight">
+                    <h4 className="text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold text-white leading-[1.15] mb-5 tracking-tight">
                         {"Second Hand ".split('').map((char, index) => (
                             <span key={`sh-${index}`} className="soon-char inline-block">
                                 {char === ' ' ? '\u00A0' : char}
@@ -305,7 +305,7 @@ export const ComingSoon = () => {
                                 {char === ' ' ? '\u00A0' : char}
                             </span>
                         ))}
-                    </h2>
+                    </h4>
                     <p className="soon-subtext text-slate-400 text-[1.05rem] leading-8 max-w-[620px] mx-auto">
                         Your upcoming trusted destination to buy & sell verified, pre-owned vehicles. Inspected thoroughly, documented securely, and priced transparently.
                     </p>
@@ -323,10 +323,10 @@ export const ComingSoon = () => {
                             {/* Inventory Header & Tabs */}
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-white/5 pb-4">
                                 <div>
-                                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <div className="text-lg font-bold text-white flex items-center gap-2">
                                         <Sparkles size={16} className="text-amber-accent" />
                                         Hot Listings Preview
-                                    </h3>
+                                    </div>
                                 </div>
 
                                 <div className="flex bg-slate-900 border border-white/10 p-1 rounded-xl w-full sm:w-auto">
@@ -365,6 +365,7 @@ export const ComingSoon = () => {
                                             <img
                                                 src={v.image}
                                                 alt={v.name}
+                                                title={`${v.brand} ${v.name}`}
                                                 className={`object-contain transition-transform duration-500 group-hover:scale-108 ${activeTab === 'cars' ? 'max-h-24 w-auto' : 'w-full h-full object-cover rounded-lg'}`}
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
@@ -376,9 +377,9 @@ export const ComingSoon = () => {
                                         {/* Spec Details */}
                                         <div className="p-4 flex-1 flex flex-col justify-between">
                                             <div>
-                                                <h4 className="text-white text-sm font-extrabold group-hover:text-amber-accent transition-colors">
+                                                <div className="text-white text-sm font-extrabold group-hover:text-amber-accent transition-colors">
                                                     {v.name}
-                                                </h4>
+                                                </div>
                                                 <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 my-3 text-[10px] text-slate-400 font-medium">
                                                     <div className="flex items-center gap-1">
                                                         <Clock size={11} className="text-slate-500 shrink-0" />
@@ -432,10 +433,10 @@ export const ComingSoon = () => {
                         <div>
                             {/* Widget Title */}
                             <div className="mb-6 border-b border-white/5 pb-4">
-                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                <div className="text-lg font-bold text-white flex items-center gap-2">
                                     <Calculator size={16} className="text-dynamic-orange" />
                                     Smart Valuation Estimator
-                                </h3>
+                                </div>
                             </div>
 
                             {/* Estimator Form */}
@@ -574,9 +575,9 @@ export const ComingSoon = () => {
 
                     {!isSubscribed ? (
                         <div className="animate-fade-in">
-                            <h4 className="text-white text-md font-extrabold mb-2 uppercase tracking-widest">
+                            <div className="text-white text-md font-extrabold mb-2 uppercase tracking-widest">
                                 Subscribe for Pre-Launch Offers
-                            </h4>
+                            </div>
                             <p className="text-slate-400 text-xs mb-6">
                                 Enter your email below. We'll send you updates, early-bird inspection waivers, and pre-launch booking discounts.
                             </p>
@@ -620,9 +621,9 @@ export const ComingSoon = () => {
                             <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 mb-4 animate-bounce">
                                 <CheckCircle2 size={24} />
                             </div>
-                            <h4 className="text-white text-md font-extrabold mb-2 uppercase tracking-widest">
+                            <div className="text-white text-md font-extrabold mb-2 uppercase tracking-widest">
                                 You're on the list!
-                            </h4>
+                            </div>
                             <p className="text-green-400 text-xs font-bold">
                                 {email}
                             </p>
@@ -642,7 +643,7 @@ export const ComingSoon = () => {
                             <div className="w-12 h-12 rounded-xl bg-dynamic-orange/10 border border-dynamic-orange/20 flex items-center justify-center mx-auto mb-4 text-dynamic-orange group-hover:scale-110 group-hover:bg-dynamic-orange/20 transition-all duration-300">
                                 {f.icon}
                             </div>
-                            <h4 className="text-white text-[0.85rem] font-extrabold mb-1.5">{f.title}</h4>
+                            <div className="text-white text-[0.85rem] font-extrabold mb-1.5">{f.title}</div>
                             <p className="text-slate-500 text-[0.7rem] leading-5">{f.desc}</p>
                         </div>
                     ))}
@@ -669,7 +670,7 @@ export const ComingSoon = () => {
                             </svg>
                         </div>
 
-                        <h3 className="text-xl font-bold text-white mb-2">{selectedService}</h3>
+                        <div className="text-xl font-bold text-white mb-2">{selectedService}</div>
                         <p className="text-dynamic-orange text-xs font-black tracking-widest uppercase mb-4">Coming Soon</p>
 
                         <p className="text-slate-400 text-sm leading-6 mb-6">

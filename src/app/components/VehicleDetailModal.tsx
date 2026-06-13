@@ -147,6 +147,7 @@ export default function VehicleDetailModal({
                 key={idx}
                 src={src}
                 alt={`${vehicle.name} photo ${idx + 1}`}
+                title={`${vehicle.brand} ${vehicle.name}`}
                 className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-in-out
                   ${idx === activeIdx ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
               />
@@ -229,7 +230,7 @@ export default function VehicleDetailModal({
           {/* Title + Price */}
           <div className="flex items-start justify-between gap-4 mb-5">
             <div>
-              <h2 className="text-2xl font-black text-white leading-tight">{vehicle.name}</h2>
+              <div className="text-2xl font-black text-white leading-tight">{vehicle.name}</div>
               <div className="flex items-center gap-2 mt-1.5">
                 <span className="text-slate-400 text-sm">{vehicle.brand}</span>
                 <span className="text-white/20">•</span>
@@ -279,7 +280,7 @@ export default function VehicleDetailModal({
 
           {/* Description placeholder */}
           <div className="mb-6">
-            <h3 className="text-white font-bold mb-2 text-sm">About this vehicle</h3>
+            <div className="text-white font-bold mb-2 text-sm">About this vehicle</div>
             <p className="text-slate-400 text-sm leading-relaxed">
               Well maintained {vehicle.brand} in excellent condition. Single owner, all service records available.
               Recently serviced with new tyres. Genuine buyers only. Price slightly negotiable.
@@ -295,6 +296,7 @@ export default function VehicleDetailModal({
           </button>
           <a
             href={`tel:${vehicle.contact}`}
+            title={`Call ${vehicle.seller} at ${vehicle.contact}`}
             className={`flex-1 py-3.5 rounded-xl bg-gradient-to-r ${c.btn} text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-lg no-underline`}
           >
             <Phone size={17} strokeWidth={2} />

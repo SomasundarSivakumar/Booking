@@ -59,7 +59,7 @@ export const Footer = () => {
                     <div className="footer-col col-span-1 md:col-span-2">
                         <div className="flex flex-col mb-6">
                             <span className="font-heading text-2xl font-extrabold tracking-tighter text-white leading-none">
-                                PRAKASH <span className="text-amber-accent">TRAVEL</span>
+                                PRAKASH <span className="text-amber-accent">TRAVELS</span>
                             </span>
                             <span className="text-[0.6rem] uppercase tracking-[0.3em] text-gray-400 font-bold mt-1">
                                 Premium Mobility Solutions
@@ -69,25 +69,25 @@ export const Footer = () => {
                             Your trusted partner for premium travel experiences in Tamil Nadu. Reliable, verified, and affordable cab services.
                         </p>
                         <div className="flex gap-4">
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-dynamic-orange hover:border-dynamic-orange transition-all group text-slate-400 hover:text-white">
+                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Prakash Travels on Facebook" title="Prakash Travels on Facebook" className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-dynamic-orange hover:border-dynamic-orange transition-all group text-slate-400 hover:text-white">
                                 <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                                 </svg>
                             </a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-dynamic-orange hover:border-dynamic-orange transition-all group text-slate-400 hover:text-white">
+                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Prakash Travels on Instagram" title="Prakash Travels on Instagram" className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-dynamic-orange hover:border-dynamic-orange transition-all group text-slate-400 hover:text-white">
                                 <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                                     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                                     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                                 </svg>
                             </a>
-                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-dynamic-orange hover:border-dynamic-orange transition-all group text-slate-400 hover:text-white">
+                            <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Prakash Travels on X" title="Prakash Travels on X (Twitter)" className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-dynamic-orange hover:border-dynamic-orange transition-all group text-slate-400 hover:text-white">
                                 <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                     <path d="M4 4l11.733 16h4.267l-11.733 -16z"></path>
                                     <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path>
                                 </svg>
                             </a>
-                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-dynamic-orange hover:border-dynamic-orange transition-all group text-slate-400 hover:text-white">
+                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Prakash Travels on YouTube" title="Prakash Travels on YouTube" className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center cursor-pointer hover:bg-dynamic-orange hover:border-dynamic-orange transition-all group text-slate-400 hover:text-white">
                                 <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                     <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
                                     <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
@@ -97,7 +97,7 @@ export const Footer = () => {
                     </div>
 
                     <div className="footer-col">
-                        <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-6 border-b border-white/5 pb-2">Services</h4>
+                        <div className="text-white font-bold text-sm uppercase tracking-widest mb-6 border-b border-white/5 pb-2">Services</div>
                         <ul className="space-y-4 text-slate-500 text-sm font-medium animate-fade-in">
                             {['Car Rental', 'Taxi Service', 'Airport Transfer', 'Outstation Trips'].map(link => (
                                 <li 
@@ -115,15 +115,15 @@ export const Footer = () => {
                     </div>
 
                     <div className="footer-col">
-                        <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-6 border-b border-white/5 pb-2">Contact Us</h4>
+                        <div className="text-white font-bold text-sm uppercase tracking-widest mb-6 border-b border-white/5 pb-2">Contact Us</div>
                         <div className="space-y-4">
                             <div className="flex items-start gap-3">
                                 <Phone size={14} className="text-dynamic-orange mt-1 shrink-0" />
-                                <a href="tel:+917092022232" className="text-slate-500 text-sm hover:text-white transition-colors">+91 70920 22232</a>
+                                <a href="tel:+917092022232" title="Call Prakash Travels Customer Support" className="text-slate-500 text-sm hover:text-white transition-colors">+91 70920 22232</a>
                             </div>
                             <div className="flex items-start gap-3">
                                 <Mail size={14} className="text-steel-blue mt-1 shrink-0" />
-                                <a href="mailto:prkshtravels@gmail.com" className="text-slate-500 text-sm hover:text-white transition-colors">prkshtravels@gmail.com</a>
+                                <a href="mailto:prkshtravels@gmail.com" title="Email Prakash Travels Support" className="text-slate-500 text-sm hover:text-white transition-colors">prkshtravels@gmail.com</a>
                             </div>
                             <div className="flex items-start gap-3">
                                 <MapPin size={14} className="text-dynamic-orange mt-1 shrink-0" />
@@ -162,7 +162,7 @@ export const Footer = () => {
                             </svg>
                         </div>
 
-                        <h3 className="text-xl font-bold text-white mb-2">{selectedService}</h3>
+                        <div className="text-xl font-bold text-white mb-2">{selectedService}</div>
                         <p className="text-dynamic-orange text-xs font-black tracking-widest uppercase mb-4">Coming Soon</p>
                         
                         <p className="text-slate-400 text-sm leading-6 mb-6">

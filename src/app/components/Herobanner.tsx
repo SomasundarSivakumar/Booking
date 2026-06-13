@@ -243,7 +243,7 @@ export const HeroBanner = () => {
                 </h1>
 
                 <p className="hero-subtext font-sans text-lg md:text-2xl text-light-gray max-w-2xl drop-shadow-md opacity-0">
-                    Experience seamless travels with Prakash Travel. Book your perfect ride today.
+                    Experience seamless travels with Prakash Travels. Book your perfect ride today.
                 </p>
 
                 <button

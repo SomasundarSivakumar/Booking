@@ -51,10 +51,10 @@ export const Header = () => {
         >
             <div className="container mx-auto px-3 md:px-12 flex justify-between items-center">
                 {/* Logo */}
-                <Link href="/" className="group flex items-center space-x-2">
+                <Link href="/" title="Prakash Travels Home" className="group flex items-center space-x-2">
                     <div className="flex flex-col">
                         <span className="font-heading text-xl md:text-3xl font-extrabold tracking-tighter text-white leading-none">
-                            PRAKASH <span className="text-amber-accent">TRAVEL</span>
+                            PRAKASH <span className="text-amber-accent">TRAVELS</span>
                         </span>
                         <span className="text-[0.6rem] uppercase tracking-[0.3em] text-gray-400 font-bold group-hover:text-amber-accent transition-colors">
                             Premium Mobility
@@ -68,7 +68,7 @@ export const Header = () => {
                 <div className="flex items-center space-x-6">
                     <div className="hidden sm:flex flex-col items-end mr-2 text-white/60">
                         <span className="text-[0.6rem] uppercase font-bold tracking-widest">Need Help?</span>
-                        <a href="tel:+917092022232" className="text-sm font-bold text-white hover:text-dynamic-orange transition-colors">+91 70920 22232</a>
+                        <a href="tel:+917092022232" title="Call Prakash Travels Customer Support" className="text-sm font-bold text-white hover:text-dynamic-orange transition-colors">+91 70920 22232</a>
                     </div>
                     <button
                         onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}

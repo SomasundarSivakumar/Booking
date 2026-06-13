@@ -169,7 +169,7 @@ export const TouristPlaces = () => {
                         <Camera size={12} strokeWidth={2.5} />
                         Explore Tamil Nadu
                     </div>
-                    <h2 className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold text-gray-900 leading-tight mb-4">
+                    <h3 className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold text-gray-900 leading-tight mb-4">
                         {"Top Tourist ".split('').map((char, index) => (
                             <span key={index} className="places-char inline-block">
                                 {char === ' ' ? '\u00A0' : char}
@@ -178,7 +178,7 @@ export const TouristPlaces = () => {
                         <span className="places-word bg-gradient-to-r from-dynamic-orange to-amber-accent bg-clip-text text-transparent inline-block">
                             Destinations
                         </span>
-                    </h2>
+                    </h3>
                     <p className="places-subtext text-gray-500 text-[1rem] leading-7 max-w-[520px] mx-auto">
                         Discover the most breathtaking places in Tamil Nadu. Book your ride with us and explore the beauty of South India.
                     </p>
@@ -210,6 +210,7 @@ export const TouristPlaces = () => {
                                 <img
                                     src={place.image}
                                     alt={place.name}
+                                    title={`Explore ${place.name} with Prakash Travels`}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
                                 {/* Gradient overlay */}
@@ -236,7 +237,7 @@ export const TouristPlaces = () => {
 
                                 {/* Bottom info on image */}
                                 <div className="absolute bottom-4 left-4 right-4">
-                                    <h3 className="text-white text-xl font-extrabold leading-tight mb-1 drop-shadow-lg">{place.name}</h3>
+                                    <div className="text-white text-xl font-extrabold leading-tight mb-1 drop-shadow-lg">{place.name}</div>
                                     <p className="text-white/80 text-[0.75rem] font-semibold">{place.subtitle}</p>
                                 </div>
                             </div>

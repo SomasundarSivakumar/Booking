@@ -113,7 +113,7 @@ export const ContactUs = () => {
                         <Map size={12} strokeWidth={2.5} />
                         Get In Touch
                     </div>
-                    <h2 className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold text-gray-900 leading-tight mb-4">
+                    <div className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold text-gray-900 leading-tight mb-4">
                         {"Contact ".split('').map((char, index) => (
                             <span key={`c-${index}`} className="contact-char inline-block">
                                 {char === ' ' ? '\u00A0' : char}
@@ -122,7 +122,7 @@ export const ContactUs = () => {
                         <span className="contact-char bg-gradient-to-r from-dynamic-orange to-amber-accent bg-clip-text text-transparent inline-block">
                             Us
                         </span>
-                    </h2>
+                    </div>
                     <p className="contact-subtext text-gray-500 text-[1rem] leading-7 max-w-[520px] mx-auto">
                         Have queries or ready to book a trip? Get in touch with our team or find our office location on the map below.
                     </p>
@@ -138,6 +138,8 @@ export const ContactUs = () => {
                                 href={detail.link}
                                 target={detail.link.startsWith('http') ? '_blank' : undefined}
                                 rel={detail.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                                aria-label={`${detail.title}: ${detail.value}`}
+                                title={`${detail.title}: ${detail.value}`}
                                 key={idx}
                                 className="contact-card group flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 p-4 sm:p-5 rounded-2xl bg-white/40 hover:bg-white border border-gray-100 hover:border-dynamic-orange/20 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer w-full"
                             >
@@ -145,9 +147,9 @@ export const ContactUs = () => {
                                     {detail.icon}
                                 </div>
                                 <div className="flex-1 min-w-0 w-full">
-                                    <h3 className="text-gray-800 text-[10px] font-black tracking-widest uppercase mb-1">
+                                    <div className="text-gray-800 text-[10px] font-black tracking-widest uppercase mb-1">
                                         {detail.title}
-                                    </h3>
+                                    </div>
                                     <p className="text-gray-900 text-sm sm:text-base font-black break-words my-1 hover:text-dynamic-orange transition-colors">
                                         {detail.value}
                                     </p>
@@ -162,7 +164,7 @@ export const ContactUs = () => {
                             </a>
                         ))}
                     </div>
-
+ 
                     {/* Right Column: Google Map Container (7/12 width) */}
                     <div className="lg:col-span-7 contact-map-container h-[300px] sm:h-[400px] lg:h-auto rounded-3xl overflow-hidden border border-gray-100 shadow-[0_15px_40px_rgba(0,0,0,0.06)] relative bg-gray-50 flex w-full">
                         <iframe 
@@ -171,6 +173,7 @@ export const ContactUs = () => {
                             allowFullScreen 
                             loading="lazy" 
                             referrerPolicy="no-referrer-when-downgrade"
+                            title="Prakash Travels office location on Google Maps"
                         />
                     </div>
 

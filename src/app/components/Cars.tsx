@@ -196,14 +196,14 @@ export const Cars = () => {
                 {/* Car Name */}
                 <div ref={carNameRef} className="absolute top-12 left-0 w-full flex flex-col items-center text-center gap-1 z-10">
                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/70">{car.brand}</p>
-                    <h2 className="text-3xl lg:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
+                    <div className="text-3xl lg:text-6xl font-black tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
                         {car.name.split('/').map((part, i, arr) => (
                             <span key={i}>
                                 {part.trim()}
                                 {i < arr.length - 1 && <span className="text-dynamic-orange mx-3">/</span>}
                             </span>
                         ))}
-                    </h2>
+                    </div>
                     <div className="mt-1 px-4 py-1 rounded-full text-sm font-bold tracking-wider text-white border border-white/30 bg-white/10 backdrop-blur-sm">
                         {car.rate}
                     </div>

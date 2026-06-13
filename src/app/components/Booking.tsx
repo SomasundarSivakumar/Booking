@@ -593,7 +593,7 @@ export const Booking = () => {
                                 <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900 leading-tight">Booking Confirmed!</h2>
+                                <div className="text-lg font-bold text-gray-900 leading-tight">Booking Confirmed!</div>
                                 <p className="text-xs text-gray-500">Your ride has been successfully booked.</p>
                             </div>
                         </div>
@@ -691,7 +691,7 @@ export const Booking = () => {
                 <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none', opacity: 0, zIndex: -1 }}>
                     <div id="pdf-ticket-container" className="w-[400px] bg-[#2D3E50] text-[#ffffff] p-0 relative" style={{ fontFamily: 'sans-serif' }}>
                         <div className="bg-[#FF6B35] p-4 text-center">
-                            <h2 className="text-xl font-bold text-[#ffffff] mb-1">BOOKING CONFIRMED</h2>
+                            <div className="text-xl font-bold text-[#ffffff] mb-1">BOOKING CONFIRMED</div>
                             <p className="text-xs text-[rgba(255,255,255,0.9)]">Your ride has been successfully booked</p>
                         </div>
 
