@@ -84,7 +84,7 @@ export const ContactUs = () => {
             actionText: 'Call Now'
         },
         {
-            icon: <Mail className="text-steel-blue shrink-0" size={20} />,
+            icon: <Mail className="text-dynamic-orange shrink-0" size={20} />,
             title: 'Email Address',
             value: 'prkshtravels@gmail.com',
             description: 'Send us your custom travel outlines, corporate requests, or feedback.',
